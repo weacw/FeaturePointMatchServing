@@ -11,6 +11,7 @@ It is further developed based on the Opencv ORB detector. It gives the ability t
 - Tcp Server is a predict and matching server
 
 # Add new image by RestFul API
+** Post: **
 ```
 form-data:
 
