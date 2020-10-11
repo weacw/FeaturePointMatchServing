@@ -2,7 +2,7 @@
 It is further developed based on the Opencv ORB detector. It gives the ability to match in the cloud.
 
 # How to install?
-- Install Dependent package
+- Execute command to install Dependent package. `install -r Sources/requirements.txt`
 - Run `python http_server` and `python tcp_server`
 
 
@@ -11,10 +11,9 @@ It is further developed based on the Opencv ORB detector. It gives the ability t
 - Tcp Server is a predict and matching server
 
 # Add new image by RestFul API
-** Post: **
+**Post:**
 ```
-form-data:
-
+//form-data:
 image_url:https://xxxx.com/Image.jpg
 metadata:Image or json 
 
