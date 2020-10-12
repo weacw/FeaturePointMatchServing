@@ -10,13 +10,19 @@ It is further developed based on the Opencv ORB detector. It gives the ability t
 - Http Serverr is a API to add new image
 - Tcp Server is a predict and matching server
 
-#RestFul API
+# RestFul API
 ###  Add new image
-**Post:**
-```
+**post**
+```json
 //form-data:
 image_url:https://xxxx.com/Image.jpg
 metadata:Image or json 
+```
+
+### Remove image
+**delete**
+```json
+image_url:https://xxxx.com/Image.jpg
 ```
 
 # Predict server
