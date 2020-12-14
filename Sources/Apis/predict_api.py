@@ -17,11 +17,15 @@ class Image_Predict_API(Resource):
         # Parse http data
         parse = reqparse.RequestParser()
         parse.add_argument('image_url')
+        parse.add_argument('image')
         args = parse.parse_args()
 
         # Start matching
         CVAlgorithm = CVModule()
-        img = CVAlgorithm.url_to_image(args['image_url'])
+        if args['image_url'] is not None:
+            img = CVAlgorithm.url_to_image(args['image_url'])
+        else:
+            img = CVAlgorithm.read_base64(args['image'])
         crop_predict_img = CVAlgorithm.crop_center(
             img, int(img.shape[0]*0.8), int(img.shape[0]*0.8))
         kp, des = CVAlgorithm.extract_feature(crop_predict_img)

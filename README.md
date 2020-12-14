@@ -1,40 +1,97 @@
 # Feature Point Match Serving
+
 It is further developed based on the Opencv ORB detector. It gives the ability to match in the cloud.
 
+# http_server.py and tcp_server.py?
+
+* Http Server is a API to add new image(Http server also supports image matching)
+* Tcp Server is a predict and matching server(Optional)
+
 # How to install?
-- Execute command to install Dependent package. `install -r Sources/requirements.txt`
-- Run `python http_server` and `python tcp_server`
 
-
-# http_server and tcp_server?
-- Http Serverr is a API to add new image
-- Tcp Server is a predict and matching server
+1. Install the [ `Elasticsearch` ](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) in your server
+2. Execute command to install Dependent package. `install -r Sources/requirements.txt`
+3. Run `python http_server` and `python tcp_server` (Optional)
 
 # RestFul API
+
 ###  Add new image
-**post**
-```json
-//form-data:
-image_url:https://xxxx.com/Image.jpg
-metadata:Image or json 
+
+**Request**
+
+``` curl
+curl --location --request POST 'http://YOUR-IP:YOUR-PORT/v1/predict_image' \
+--form 'image_url=YOUR-IMAGE-URL' \
+--form 'metadata=YOUR-METADATA'
+```
+
+**Response**
+
+``` json
+{
+    "msg": "success"
+}
 ```
 
 ### Remove image
-**delete**
-```json
-image_url:https://xxxx.com/Image.jpg
+
+**Request**
+
+``` curl
+curl --location --request DELETE 'http://YOUR-IP:YOUR-PORT/v1/predict_image' \
+--form  'image_url=YOUR-IMAGE-URL'
 ```
 
-# Predict server
+**Response**
+
+``` json
+{
+    "msg": "success"
+}
+```
+
+### Match image
+
+### Use network image
+
+**Request**
+
+``` curl
+curl --location --request POST 'http://YOUR-IP:YOUR-PORT/v1/predict_image' \
+--form  'image_url=YOUR-IMAGE-URL'
+```
+
+### Use Base64 image
+
+When you are using the base64, you must remove `data:image/jpeg;base64,`
+**Request**
+``` curl
+curl --location --request POST 'http://127.0.0.1:5000/v1/predict_image' \
+--form 'image=IMAGE-BASE64-DATA'
+```
+
+**Response**
+
+``` json
+{
+    "id": 0,
+    "metadata": "godzilla",
+    "timestamp": "2020-12-14T16:31:03.803754",
+    "matchscore": 286
+}
+```
+
+# TCP-Predict with C# (Optional)
 
 We use tcp protocol for image transmission.  
 The image will covert to base64 encoding and send to server for predict.
 
-- Install NetMQ or ZeroMQ
+* Install NetMQ or ZeroMQ
 
 Example Code:
 ```C# 
  public class ImageMatchFrameRecognizerDecorator : IExpandDecorator
+
     {
         private bool running;
         private readonly CancellationToken cancellationToken;
@@ -50,7 +107,6 @@ Example Code:
             cancellationToken = tokenSource.Token;
             callback = _callback;
         }
-
 
         public async void DecoratorInvoke()
         {
@@ -82,12 +138,11 @@ Example Code:
             tokenSource.Cancel(true);
         }
 
-
         private void SocketRequest(string _data)
         {
             // this line is needed to prevent unity freeze after one use, not sure why yet
             ForceDotNet.Force();
-            using (var tmp_Client = new RequestSocket("tcp://106.14.135.205:4531"))
+            using (var tmp_Client = new RequestSocket("tcp://IP:PORT"))
             {
                 try
                 {
@@ -122,4 +177,5 @@ Example Code:
             NetMQConfig.Cleanup();
         }
     }
+
 ```
