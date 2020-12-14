@@ -1,7 +1,8 @@
-Werkzeug==1.0.1
-Flask_RESTful==0.3.8
-numpy==1.19.2
 Flask==1.1.2
-annoy==1.17.0
-opencv_python==4.4.0.44
-pyzmq==19.0.2
+Flask_RESTful==0.3.8
+gevent==20.9.0
+numpy==1.18.1
+elasticsearch==7.9.1
+annoy==1.16.3
+opencv_python==4.3.0.36
+pyzmq==20.0.0

@@ -8,6 +8,8 @@ import numpy as np
 from random import choice
 from cvmodule import CVModule
 from image_search import ImageSearch
+from elasticsearch_driver import ImsES
+from elasticsearch import Elasticsearch
 
 
 class Server(threading.Thread):
@@ -26,7 +28,7 @@ class Server(threading.Thread):
         for i in range(2):
             worker = ServerWorker(context)
             worker.setName(f"MatchServer-{i}")
-            #worker.setDaemon(True)
+            # worker.setDaemon(True)
             worker.start()
             workers.append(worker)
 
@@ -57,11 +59,8 @@ class ServerWorker(threading.Thread):
     def __init__(self, context):
         threading.Thread.__init__(self)
         self.context = context
-        self.image_search = ImageSearch("cache/test.db")
         self.CVModule = CVModule()
-
-        label_db = open('cache/label_db.pickle', 'rb')
-        self.labels = pickle.load(label_db)
+        self.ims = ImsES(Elasticsearch())
 
     def run(self):
         worker = self.context.socket(zmq.XREQ)
@@ -74,17 +73,27 @@ class ServerWorker(threading.Thread):
                 img = self.CVModule.read_base64(data)
                 crop_predict_img = self.CVModule.crop_center(img, int(
                     img.shape[0]*0.8), int(img.shape[0]*0.8))
-                cv2.imwrite('src/crop.jpg',cv2.resize(crop_predict_img, dsize=(800, 800), interpolation=cv2.INTER_AREA))
                 kp, des = self.CVModule.extract_feature(crop_predict_img)
-                result_table = self.image_search.search_batch(des)
-                worker.send(json.dumps(result_table).encode('utf8'))
+                image_search = ImageSearch("cache/index.db")
+                result_table = image_search.search_batch(des)
+                   
+                if len(result_table) > 0:
+                    record = self.ims.search_single_record(
+                        {'id': result_table['id']})
+                    if len(record) > 0:
+                        record.pop('des')
+                        result_table = self.merge_dicts(record, result_table)
+                        worker.send(json.dumps(result_table).encode('utf8'))
+                else:
+                    worker.send(json.dumps({}).encode('utf8'))
             del data
 
         worker.close()
 
-
-# server = Server()
-# server.start_server()
+    def merge_dicts(self, dict1, dict2):
+        dict3 = dict1.copy()
+        dict3.update(dict2)
+        return dict3
 
 
 server = Server()

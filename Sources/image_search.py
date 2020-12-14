@@ -1,7 +1,7 @@
 import numpy as np
 from annoy import AnnoyIndex
 from cvmodule import CVModule
-import pickle
+
 
 
 class ImageSearch():
@@ -15,6 +15,8 @@ class ImageSearch():
             pass
 
     def find_vector(self, des):
+        if des is None:
+            return
         des = des.flatten()
         if des.size < 16000:
             des = np.concatenate([des, np.zeros(16000 - des.size)])
@@ -30,22 +32,18 @@ class ImageSearch():
     def search_batch(self, targetVector):
         kn_results = self.find_vector(targetVector)
         result_table = dict()
-        labels_table = []
-        try:
-            self.labels_db = open('cache/label_db.pickle', 'rb')
-            labels_table = pickle.load(self.labels_db)
-            self.labels_db.close()
-        except BaseException as e:
-            print(e)
-            pass
         try:
             for data_index in kn_results:
                 vector = self.get_item_vector_by_id(data_index)
-                good = self.cvmodule.match(vector,targetVector) 
+                good = self.cvmodule.match(vector, targetVector)
                 if len(good) > 50:
-                    result_table[labels_table[data_index]] = len(good)
+                    result_table['id'] = data_index
+                    result_table['matchscore'] = len(good)
         except BaseException as ex:
             print(ex)
             pass
         return dict(sorted(result_table.items(),
-                           key=lambda x: x[1], reverse=True))
+                           key=lambda x: x[0][1], reverse=True))
+
+    def get_count(self):
+        return self.t.get_n_items()
