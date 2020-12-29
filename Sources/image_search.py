@@ -43,7 +43,7 @@ class ImageSearch():
             print(ex)
             pass
         return dict(sorted(result_table.items(),
-                           key=lambda x: x[0][1], reverse=True))
+                           key=lambda x: x[0][1], reverse=False))
 
     def get_count(self):
         return self.t.get_n_items()

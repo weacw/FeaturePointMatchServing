@@ -26,22 +26,18 @@ class Image_Predict_API(Resource):
             img = CVAlgorithm.url_to_image(args['image_url'])
         else:
             img = CVAlgorithm.read_base64(args['image'])
-        crop_predict_img = CVAlgorithm.crop_center(
-            img, int(img.shape[0]*0.8), int(img.shape[0]*0.8))
-        kp, des = CVAlgorithm.extract_feature(crop_predict_img)
-
+        crop_predict_img = CVAlgorithm.crop_center(img)
+        des = CVAlgorithm.extract_feature(crop_predict_img)
         # Init and load search algorithm
         image_search = ImageSearch("cache/index.db")
         result_table = image_search.search_batch(des)
-
+        print(result_table)
         # Check the result length, when the result length is greater than 0, get the matching data
         if len(result_table) > 0:
             record = self.ims.search_single_record({'id': result_table['id']})
             if len(record) > 0:
-
                 # Remove the field of des. Because the des field is storing the image description data
                 record.pop('des')
-
                 # merge dict for client
                 result_table = self.merge_dicts(record, result_table)
                 return result_table, 200
