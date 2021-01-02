@@ -7,11 +7,11 @@ from elasticsearch import Elasticsearch
 
 es = Elasticsearch()
 ims = ImsES(es)
-ims.delete_all_record()
+# ims.delete_all_record()
 # print(len(ims.search_all_record()))
-# ims.delete_siginle_record({'id': 0})
+# ims.delete_siginle_record({'id': 1})
 
-# record = ims.search_single_record({'id': "0"})
+# record = ims.search_single_record({'id': "1"})
 # if record:
 #     record.pop('des')
 #     print(record)

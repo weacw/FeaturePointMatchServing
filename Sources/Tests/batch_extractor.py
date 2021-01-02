@@ -1,14 +1,14 @@
+import numpy as np
+import cv2
+import os
+from flask_restful import Resource, reqparse
 import sys
 sys.path.append("..")
-from image_search import ImageSearch
-from image_train import ImageTrain
-from cvmodule import CVModule
-from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
-from flask_restful import Resource, reqparse
-import os
-import cv2
-import numpy as np
+from elasticsearch_driver import ImsES
+from cvmodule import CVModule
+from image_train import ImageTrain
+from image_search import ImageSearch
 
 
 
@@ -73,17 +73,16 @@ def batch_extractor_form_url():
     ims = ImsES(Elasticsearch())
     image_count = image_search.get_count()
     image_search.unload()
-    print(image_count)
     try:
         for f in files:
             img = CVAlgorithm.url_to_image(f)
             des = CVAlgorithm.extract_feature(img)
-            result_table = image_search.search_batch(des)            
+            result_table = image_search.search_batch(des)
             if len(result_table) == 0:
                 # Append data to already dataset
                 new_record = {'id': image_count,
-                            'metadata': f,
-                            'des': des.flatten()}
+                              'metadata': f,
+                              'des': des.flatten()}
                 ims.insert_single_record(new_record, refresh_after=True)
                 image_count += 1
 
@@ -94,12 +93,16 @@ def batch_extractor_form_url():
         for key in already_dataset:
             imageTrain.addMarkerDes(key["_source"]["des"])
 
-        if imageTrain.generateMarkerDB('../cache/index.db'):
-            print("Finised Batch extract")
+        if imageTrain.generateMarkerDB('../cache/index.db') == False:
             print(len(ims.search_all_record()))
-        
+            os.remove('../cache/index.db')
+        else:
+            print("Finised Batch extract")
+
     except BaseException as e:
         print(f"Error:{e}")
+        print(len(ims.search_all_record()))
+        os.remove('../cache/index.db')
         pass
 
 

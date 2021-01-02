@@ -17,7 +17,7 @@ class CVModule():
         self.orb = cv2.ORB_create()
         index_params = dict(algorithm=6, table_number=12,
                             key_size=12, multi_probe_level=1)
-        search_params = dict(checks=150)
+        search_params = dict(checks=300)
         self.flann = cv2.FlannBasedMatcher(index_params, search_params)
 
     """
@@ -46,12 +46,11 @@ class CVModule():
     """
 
     def extract_feature(self, img):
-        img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_AREA)        
+        img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_AREA)
         kps = self.orb.detect(img)
         kps = sorted(kps, key=lambda x: -x.response)[:]
         kps, des = self.orb.compute(img, kps)
         return des
-        # return self.orb.detectAndCompute(img, None)
 
     """
     将图片进行裁剪
@@ -76,8 +75,16 @@ class CVModule():
 
     def match(self, des1, des2):
         matches = self.flann.knnMatch(des1, des2, k=2)
+
         good = []
-        for i, (m, n) in enumerate(matches):
-            if m.distance < 0.8*n.distance:
-                good.append([m])
+        for m in matches:
+            if len(m) == 2:
+                if m[0].distance < 0.7 * m[1].distance:
+                    good.append(m[0])
+
+        # 弃用，用迭代会引发 ValueError: not enough values to unpack (expected 2, got 1)
+        # for i, (m, n) in enumerate(matches):
+        #     if len(matches[i]) == 2:
+        #         if m.distance < 0.75*n.distance:
+        #             good.append([m])
         return good
