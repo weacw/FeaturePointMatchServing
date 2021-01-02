@@ -57,8 +57,9 @@ class CVModule():
     @img:需裁剪的图片
     @dim:裁剪的目标尺寸
     """
-
+    
     def crop_center(self, img, dim=[800, 800]):
+        
         width, height = img.shape[1], img.shape[0]
         crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
         crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]
