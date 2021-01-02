@@ -9,38 +9,46 @@ from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
 
 
+
 class Image_Predict_API(Resource):
     def __init__(self):
         self.ims = ImsES(Elasticsearch())
-
+    
     def post(self):
         # Parse http data
         parse = reqparse.RequestParser()
         parse.add_argument('image_url')
         parse.add_argument('image')
         args = parse.parse_args()
+        try:
+            # Start matching
+            CVAlgorithm = CVModule()
+            if args['image_url'] is not None:
+                img = CVAlgorithm.url_to_image(args['image_url'])
+            else:
+                img = CVAlgorithm.read_base64(args['image'])
+            
+            crop_predict_img = CVAlgorithm.crop_center(img)
+            des = CVAlgorithm.extract_feature(crop_predict_img)
 
-        # Start matching
-        CVAlgorithm = CVModule()
-        if args['image_url'] is not None:
-            img = CVAlgorithm.url_to_image(args['image_url'])
-        else:
-            img = CVAlgorithm.read_base64(args['image'])
-        crop_predict_img = CVAlgorithm.crop_center(img)
-        des = CVAlgorithm.extract_feature(crop_predict_img)
-        # Init and load search algorithm
-        image_search = ImageSearch("cache/index.db")
-        result_table = image_search.search_batch(des)
-        print(result_table)
-        # Check the result length, when the result length is greater than 0, get the matching data
-        if len(result_table) > 0:
-            record = self.ims.search_single_record({'id': result_table['id']})
-            if len(record) > 0:
-                # Remove the field of des. Because the des field is storing the image description data
-                record.pop('des')
-                # merge dict for client
-                result_table = self.merge_dicts(record, result_table)
-                return result_table, 200
+            # Init and load search algorithm
+            image_search = ImageSearch("cache/index.db")
+            result_table = image_search.search_batch(des)
+            
+            # Check the result length, when the result length is greater than 0, get the matching data
+            if len(result_table) > 0:
+                record = self.ims.search_single_record(
+                    {'id': result_table['id']})
+                if len(record) > 0:
+                    # Remove the field of des. Because the des field is storing the image description data
+                    record.pop('des')
+                    # merge dict for client
+                    result_table = self.merge_dicts(record, result_table)
+                    return result_table, 200
+        except Exception as BaseException:
+            print(BaseException)
+            pass
+
         return {'data': '', 'message': 'Can not found!'}, 200
 
     def merge_dicts(self, dict1, dict2):

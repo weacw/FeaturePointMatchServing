@@ -21,7 +21,7 @@ class Image_Train_API(Resource):
     def post(self):
         CVAlgorithm = CVModule()
         img = CVAlgorithm.url_to_image(self.get_image())
-        kp, des = CVAlgorithm.extract_feature(img)
+        des = CVAlgorithm.extract_feature(img)
 
         # Init and load search algorithm
         image_search = ImageSearch("cache/index.db")

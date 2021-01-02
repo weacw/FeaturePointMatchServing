@@ -18,7 +18,7 @@ class Image_Del_API(Resource):
 
         CVAlgorithm = CVModule()
         img = CVAlgorithm.url_to_image(args['image_url'])
-        kp, des = CVAlgorithm.extract_feature(img)
+        des = CVAlgorithm.extract_feature(img)
 
         # Init and load search algorithm
         image_search = ImageSearch("cache/index.db")
