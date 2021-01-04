@@ -46,7 +46,7 @@ class ImageTrain():
                     des = np.concatenate(
                         [des, np.zeros(16000 - des.size)])
                 t.add_item(id, des)                
-            t.build(20)
+            t.build(100)
             t.save(f"{db_name}")
             return True
         except Exception:

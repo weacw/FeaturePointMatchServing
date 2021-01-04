@@ -32,7 +32,7 @@ class ImageSearch():
         des = des.flatten()
         if des.size < 16000:
             des = np.concatenate([des, np.zeros(16000 - des.size)])
-        data = self.t.get_nns_by_vector(des, n=5)
+        data = self.t.get_nns_by_vector(des, n=20)
         return data
 
     def unload(self):
@@ -58,7 +58,7 @@ class ImageSearch():
         Returns:
             Dict: 检索到最为匹配的图像数据
         """
-        kn_results = self.find_vector(targetVector)               
+        kn_results = self.find_vector(targetVector)                
         result_table = dict()
         try:
             for data_index in kn_results:

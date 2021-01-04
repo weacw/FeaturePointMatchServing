@@ -9,6 +9,7 @@ from elasticsearch_driver import ImsES
 from cvmodule import CVModule
 from image_train import ImageTrain
 from image_search import ImageSearch
+import argparse
 
 cache_path ='../cache/index.db'
 
@@ -46,36 +47,48 @@ urls = [
 ]
 
 
-def batch_extractor_form_file(images_path):
-    files = [os.path.join(images_path, p)
-             for p in sorted(os.listdir(images_path))]
-    CVAlgorithm = CVModule()
-    image_search = ImageSearch(cache_path)
-    result = {}
-    for f in files:
-        # print 'Extracting features from image %s' % f
-        name = f.split('/')[-1].lower()
-        kp, des = CVAlgorithm.extract_feature(f)
-        result_table = image_search.search_batch(des)
+def batch_extractor_form_file(images_path):    
+    try:
+        CVAlgorithm = CVModule()
+        imageTrain = ImageTrain()
+        image_search = ImageSearch(cache_path)
         image_count = image_search.get_count()
         image_search.unload()
-        if len(result_table) == 0:
-            # Append data to already dataset
-            new_record = {'id': image_count,
-                          'metadata': self.args['metadata'],
-                          'des': des.flatten()}
-            self.ims.insert_single_record(new_record, refresh_after=True)
+        ims = ImsES(Elasticsearch())
+        result = {}
+        files = [os.path.join(images_path, p)
+                for p in sorted(os.listdir(images_path))]        
+        for f in files[60:]:               
+            img = CVAlgorithm.path_to_image(f)
+            des = CVAlgorithm.extract_feature(img)
+            result_table = image_search.search_batch(des)
+            if len(result_table) == 0:
+                # Append data to already dataset
+                new_record = {'id': image_count,
+                                'metadata': f,
+                                'des': des.flatten()}
+                ims.insert_single_record(new_record, refresh_after=True)
+                image_count += 1
 
-            # Loading already dataset
-            already_dataset = self.ims.search_all_record()
+        # Loading already dataset
+        already_dataset = ims.search_all_record()
 
-            # Trainning it!
-            self.imageTrain = ImageTrain()
-            for key in already_dataset:
-                imageTrain.addMarkerDes(key["_source"]["id"],key["_source"]["des"])
+        # Trainning it!
+        for key in already_dataset:
+            imageTrain.addMarkerDes(key["_source"]["id"],key["_source"]["des"])
 
-    print("Finised Batch extract")
-
+        # We need the del cache db when out image trainer generator was failed
+        if imageTrain.generateMarkerDB(cache_path) == False:
+            print(len(ims.search_all_record()))
+            os.remove(cache_path)
+        else:
+            print("Finised Batch extract")
+    except BaseException as e:
+        # We need the del cache db when out image trainer generator was failed
+        print(f"Error:{e}")
+        print(len(ims.search_all_record()))
+        os.remove(cache_path)
+        pass
 
 def batch_extractor_form_url():
     files = urls
@@ -119,4 +132,11 @@ def batch_extractor_form_url():
         pass
 
 
-batch_extractor_form_url()
+# batch_extractor_form_url()
+
+
+
+if __name__ == "__main__":   
+    batch_extractor_form_file("../Tests/Star")
+    # batch_extractor_form_url()
+    

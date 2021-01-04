@@ -7,7 +7,7 @@ from flask_restful import Resource, reqparse
 
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
-
+import werkzeug
 
 
 class Image_Predict_API(Resource):
@@ -18,13 +18,16 @@ class Image_Predict_API(Resource):
         # Parse http data
         parse = reqparse.RequestParser()
         parse.add_argument('image_url')
-        parse.add_argument('image')
+        parse.add_argument('image_base64')
+        parse.add_argument('image', type=werkzeug.datastructures.FileStorage, location='files')
         args = parse.parse_args()
         try:
             # Start matching
             CVAlgorithm = CVModule()
             if args['image_url'] is not None:
                 img = CVAlgorithm.url_to_image(args['image_url'])
+            elif args['image'] is not None:                
+                img = CVAlgorithm.bytes_to_image(args['image'])
             else:
                 img = CVAlgorithm.read_base64(args['image'])
             

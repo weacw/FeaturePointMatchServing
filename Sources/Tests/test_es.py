@@ -3,10 +3,17 @@ from datetime import datetime
 sys.path.append("..") 
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
-
+from image_search import ImageSearch
 
 es = Elasticsearch()
 ims = ImsES(es)
+
+cache_path ='../cache/index.db'
+image_search = ImageSearch(cache_path)
+image_count = image_search.get_count()
+image_search.unload()
+print(image_count)
+
 # ims.delete_all_record()
 # print(len(ims.search_all_record()))
 # ims.delete_siginle_record({'id': 1})
@@ -23,7 +30,7 @@ ims = ImsES(es)
 # print(len(ims.search_all_record()))
 
 
-ims.delete_all_record()
+# ims.delete_all_record()
 # all_records = ims.search_all_record()
 # count = 0
 # for e in all_records:

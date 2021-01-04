@@ -40,6 +40,13 @@ class CVModule():
         image = cv2.imdecode(image, 0)
         return image
 
+    def path_to_image(self,path):
+        return cv2.imread(path,cv2.IMREAD_GRAYSCALE)
+
+    def bytes_to_image(self,bytes):
+        image = np.asarray(bytearray(bytes.read()), dtype="uint8")
+        return cv2.imdecode(image, 0)
+
     """
     抽出图像的描述子
     @img:需要抽出描述子的图像
