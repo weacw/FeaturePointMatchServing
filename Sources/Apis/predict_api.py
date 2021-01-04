@@ -37,8 +37,7 @@ class Image_Predict_API(Resource):
             
             # Check the result length, when the result length is greater than 0, get the matching data
             if len(result_table) > 0:
-                record = self.ims.search_single_record(
-                    {'id': result_table['id']})
+                record = self.ims.search_single_record({'id': result_table['id']})
                 if len(record) > 0:
                     # Remove the field of des. Because the des field is storing the image description data
                     record.pop('des')

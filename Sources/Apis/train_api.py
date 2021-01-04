@@ -42,7 +42,7 @@ class Image_Train_API(Resource):
             # Trainning it!
             self.imageTrain = ImageTrain()
             for key in already_dataset:
-                self.imageTrain.addMarkerDes(key["_source"]["des"])
+                self.imageTrain.addMarkerDes(key["_source"]["id"],key["_source"]["des"])
 
             # Rebuild index
             if self.imageTrain.generateMarkerDB('cache/index.db'):

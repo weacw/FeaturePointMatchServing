@@ -35,9 +35,9 @@ class Image_Del_API(Resource):
             already_dataset = self.ims.search_all_record()
             # Re-trainning it!
             self.imageTrain = ImageTrain()
-            print(len(already_dataset))
+            
             for key in already_dataset:
-                self.imageTrain.addMarkerDes(key["_source"]["des"])
+                self.imageTrain.addMarkerDes(key["_source"]["id"],key["_source"]["des"])
            
             # Rebuild index
             if self.imageTrain.generateMarkerDB('cache/index.db'):

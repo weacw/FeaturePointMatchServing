@@ -23,4 +23,10 @@ ims = ImsES(es)
 # print(len(ims.search_all_record()))
 
 
-# ims.delete_all_record()
+ims.delete_all_record()
+# all_records = ims.search_all_record()
+# count = 0
+# for e in all_records:
+#     file = open(f'../description/{count}.txt','w')
+#     file.write(str(e))
+#     count+=1

@@ -11,7 +11,7 @@ class ImageTrain():
         """
         self.desArray = []
 
-    def addMarkerDes(self, des):
+    def addMarkerDes(self,id, des):
         """添加单个识别图数据
 
         Args:
@@ -19,7 +19,11 @@ class ImageTrain():
         """
         if isinstance(des, np.ndarray) is False:
             des = np.array(des)
-        self.desArray.append(des)
+        # self.desArray.append(des)
+        desDict = dict()
+        desDict['id'] = id
+        desDict['des'] = des
+        self.desArray.append(desDict)
 
     def generateMarkerDB(self, db_name):
         """用于生成追踪数据库
@@ -32,13 +36,16 @@ class ImageTrain():
         """
 
         try:
+         
             f = 16000
-            t = AnnoyIndex(f, 'angular')
-            for des in self.desArray:
+            t = AnnoyIndex(f, 'angular')            
+            for e in self.desArray:
+                des = e['des']
+                id = e['id']
                 if des.size < 16000:
                     des = np.concatenate(
                         [des, np.zeros(16000 - des.size)])
-                t.add_item(t.get_n_items(), des)
+                t.add_item(id, des)                
             t.build(20)
             t.save(f"{db_name}")
             return True

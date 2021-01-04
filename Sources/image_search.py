@@ -58,12 +58,12 @@ class ImageSearch():
         Returns:
             Dict: 检索到最为匹配的图像数据
         """
-        kn_results = self.find_vector(targetVector)
+        kn_results = self.find_vector(targetVector)               
         result_table = dict()
         try:
             for data_index in kn_results:
                 vector = self.get_item_vector_by_id(data_index)
-                good = self.cvmodule.match(vector, targetVector)
+                good = self.cvmodule.match(vector,targetVector)
                 if len(good) > 50:
                     result_table['id'] = data_index
                     result_table['matchscore'] = len(good)
