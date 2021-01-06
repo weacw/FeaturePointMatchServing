@@ -26,12 +26,13 @@ class Image_Predict_API(Resource):
             CVAlgorithm = CVModule()
             if args['image_url'] is not None:
                 img = CVAlgorithm.url_to_image(args['image_url'])
+                crop_predict_img = CVAlgorithm.crop_center(img,dim=[800,800])
             elif args['image'] is not None:                
                 img = CVAlgorithm.bytes_to_image(args['image'])
+                crop_predict_img = CVAlgorithm.crop_center(img,dim=[800,800])
             else:
-                img = CVAlgorithm.read_base64(args['image'])
-            
-            crop_predict_img = CVAlgorithm.crop_center(img)
+                img = CVAlgorithm.read_base64(args['image_base64'])            
+                crop_predict_img = CVAlgorithm.crop_center(img)
             des = CVAlgorithm.extract_feature(crop_predict_img)
 
             # Init and load search algorithm

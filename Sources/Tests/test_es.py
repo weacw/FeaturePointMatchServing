@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+import os
 sys.path.append("..") 
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
@@ -16,6 +17,8 @@ print(image_count)
 
 # ims.delete_all_record()
 # print(len(ims.search_all_record()))
+# os.remove(cache_path)
+
 # ims.delete_siginle_record({'id': 1})
 
 # record = ims.search_single_record({'id': "1"})

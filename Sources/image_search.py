@@ -13,7 +13,7 @@ class ImageSearch():
         self.cvmodule = CVModule()
         try:
             self.f = 16000
-            self.t = AnnoyIndex(self.f, 'angular')
+            self.t = AnnoyIndex(self.f, 'manhattan')
             self.t.load(db_name)
         except BaseException as e:
             pass
@@ -58,7 +58,8 @@ class ImageSearch():
         Returns:
             Dict: 检索到最为匹配的图像数据
         """
-        kn_results = self.find_vector(targetVector)                
+        kn_results = self.find_vector(targetVector)           
+       
         result_table = dict()
         try:
             for data_index in kn_results:

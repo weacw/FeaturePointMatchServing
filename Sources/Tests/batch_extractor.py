@@ -58,7 +58,7 @@ def batch_extractor_form_file(images_path):
         result = {}
         files = [os.path.join(images_path, p)
                 for p in sorted(os.listdir(images_path))]        
-        for f in files[60:]:               
+        for f in files:               
             img = CVAlgorithm.path_to_image(f)
             des = CVAlgorithm.extract_feature(img)
             result_table = image_search.search_batch(des)
@@ -102,7 +102,7 @@ def batch_extractor_form_url():
         for f in files:
             img = CVAlgorithm.url_to_image(f)
             des = CVAlgorithm.extract_feature(img)
-            result_table = image_search.search_batch(des)
+            result_table = image_search.search_batch(des)           
             if len(result_table) == 0:
                 # Append data to already dataset
                 new_record = {'id': image_count,
@@ -137,6 +137,6 @@ def batch_extractor_form_url():
 
 
 if __name__ == "__main__":   
-    batch_extractor_form_file("../Tests/Star")
+    batch_extractor_form_file("../Tests/Beauties/")
     # batch_extractor_form_url()
     

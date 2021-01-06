@@ -38,7 +38,7 @@ class ImageTrain():
         try:
          
             f = 16000
-            t = AnnoyIndex(f, 'angular')            
+            t = AnnoyIndex(f, 'manhattan')            
             for e in self.desArray:
                 des = e['des']
                 id = e['id']

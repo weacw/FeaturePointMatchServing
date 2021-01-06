@@ -52,11 +52,11 @@ class CVModule():
     @img:需要抽出描述子的图像
     """
 
-    def extract_feature(self, img):
+    def extract_feature(self, img):        
         img = cv2.resize(img, dsize=(800, 800), interpolation=cv2.INTER_AREA)
         kps = self.orb.detect(img)
         kps = sorted(kps, key=lambda x: -x.response)[:]
-        kps, des = self.orb.compute(img, kps)
+        kps, des = self.orb.compute(img, kps)        
         return des
 
     """
@@ -65,14 +65,13 @@ class CVModule():
     @dim:裁剪的目标尺寸
     """
     
-    def crop_center(self, img, dim=[800, 800]):
-        
-        width, height = img.shape[1], img.shape[0]
+    def crop_center(self, img, dim=[512, 512]):            
+        width, height = img.shape[1], img.shape[0]        
         crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
         crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]
         mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)
-        crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
+        crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]        
         return crop_img
 
     """
@@ -87,7 +86,7 @@ class CVModule():
         good = []
         for m in matches:
             if len(m) == 2:
-                if m[0].distance < 0.7 * m[1].distance:
+                if m[0].distance < 0.65 * m[1].distance:
                     good.append(m[0])
 
         # 弃用，用迭代会引发 ValueError: not enough values to unpack (expected 2, got 1)
