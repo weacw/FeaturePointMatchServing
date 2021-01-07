@@ -86,7 +86,7 @@ class CVModule():
         good = []
         for m in matches:
             if len(m) == 2:
-                if m[0].distance < 0.65 * m[1].distance:
+                if m[0].distance < 0.75 * m[1].distance:
                     good.append(m[0])
 
         # 弃用，用迭代会引发 ValueError: not enough values to unpack (expected 2, got 1)
