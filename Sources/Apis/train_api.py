@@ -5,23 +5,31 @@ from flask_restful import Resource, reqparse
 
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
-
+import werkzeug
 
 class Image_Train_API(Resource):
     def __init__(self):
-        self.ims = ImsES(Elasticsearch())
+        self.ims = ImsES(Elasticsearch())        
+        self.CVAlgorithm = CVModule()
 
     def get_image(self):
         parse = reqparse.RequestParser()
-        parse.add_argument('image_url')
+        parse.add_argument('image_url')        
+        parse.add_argument('image_base64')
+        parse.add_argument('image', type=werkzeug.datastructures.FileStorage, location='files')
         parse.add_argument('metadata')
         self.args = parse.parse_args()
-        return self.args['image_url']
+
+        if self.args['image_url'] is not None:
+            return  self.CVAlgorithm.url_to_image(self.args['image_url'])
+        elif self.args['image_base64'] is not None:
+            return  self.CVAlgorithm.read_base64(self.args['image_base64'])
+        else:
+            return  self.CVAlgorithm.bytes_to_image(self.args['image'])             
 
     def post(self):
-        CVAlgorithm = CVModule()
-        img = CVAlgorithm.url_to_image(self.get_image())
-        des = CVAlgorithm.extract_feature(img)
+        img = self.get_image()
+        des = self.CVAlgorithm.extract_feature(img)
 
         # Init and load search algorithm
         image_search = ImageSearch("cache/index.db")
