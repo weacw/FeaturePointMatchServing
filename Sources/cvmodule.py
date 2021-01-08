@@ -71,7 +71,8 @@ class CVModule():
         crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]
         mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)
-        crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]        
+        crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]  
+        cv2.imwrite('croped.jpg',crop_img)      
         return crop_img
 
     """
@@ -86,7 +87,7 @@ class CVModule():
         good = []
         for m in matches:
             if len(m) == 2:
-                if m[0].distance < 0.75 * m[1].distance:
+                if m[0].distance < 0.65 * m[1].distance:
                     good.append(m[0])
 
         # 弃用，用迭代会引发 ValueError: not enough values to unpack (expected 2, got 1)
