@@ -72,7 +72,7 @@ class CVModule():
         mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)
         crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]  
-        ret, crop_img = cv2.threshold(crop_img, 0, 255, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
+        crop_img = np.uint8(np.clip((2 * (np.int16(crop_img) - 60) + 50), 0, 255))
         cv2.imwrite('croped.jpg',crop_img)      
         return crop_img
 
