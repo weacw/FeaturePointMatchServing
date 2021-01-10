@@ -29,7 +29,7 @@ class CVModule():
 
     def read_base64(self, base64Image):
         npimg = np.frombuffer(base64.b64decode(base64Image), dtype=np.uint8)
-        return cv2.imdecode(npimg, 0)
+        return cv2.imdecode(npimg, 2)
 
     """
     通过URL下载图片
@@ -73,9 +73,11 @@ class CVModule():
         mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)
         crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
+
+        # Enhanced gray
         crop_img = np.uint8(
-            np.clip((2 * (np.int16(crop_img) - 60) +50), 0, 255))
-        # cv2.imwrite('croped.jpg', crop_img)
+            np.clip((2 * (np.int16(crop_img)-60) -225), 0, 255))
+        cv2.imwrite('croped.jpg', crop_img)
         return crop_img
 
     """
