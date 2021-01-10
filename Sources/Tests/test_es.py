@@ -15,16 +15,24 @@ image_count = image_search.get_count()
 image_search.unload()
 print(image_count)
 
-# ims.delete_all_record()
-# print(len(ims.search_all_record()))
-# os.remove(cache_path)
+ims.delete_all_record()
+print(len(ims.search_all_record()))
+if os.path.exists(cache_path):
+    os.remove(cache_path)
+
+# ims.insert_single_record({"id":1100,"metadata":100},True)
+# record = ims.search_single_record({'id': "1100"})
+# print(record)
 
 # ims.delete_siginle_record({'id': 1})
 
-# record = ims.search_single_record({'id': "1"})
+# record = ims.search_single_record({'id': "60"})
 # if record:
 #     record.pop('des')
+#     record.pop('kps')
 #     print(record)
+
+# print(ims.search_multiple_record([1,2,3,4]))
 
 # print(ims.delete_siginle_record({'title': 90}))
 

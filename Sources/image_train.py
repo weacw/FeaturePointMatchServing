@@ -2,14 +2,17 @@ import os
 import cv2
 import pickle
 import numpy as np
-from annoy import AnnoyIndex
+# from annoy import AnnoyIndex
+from annoyindex_driver import AnnoyIndex_driver
 
 
 class ImageTrain():
-    def __init__(self):
+    def __init__(self,db_name):
         """初始化
         """
         self.desArray = []
+        self.annoyindx = AnnoyIndex_driver(db_name)
+
 
     def addMarkerDes(self,id, des):
         """添加单个识别图数据
@@ -25,7 +28,7 @@ class ImageTrain():
         desDict['des'] = des
         self.desArray.append(desDict)
 
-    def generateMarkerDB(self, db_name):
+    def generateMarkerDB(self):
         """用于生成追踪数据库
 
         Args:
@@ -34,20 +37,8 @@ class ImageTrain():
         Returns:
             Bool: True即为构建数据库成功，反之则为失败
         """
-
-        try:
-         
-            f = 16000
-            t = AnnoyIndex(f, 'manhattan')            
-            for e in self.desArray:
-                des = e['des']
-                id = e['id']
-                if des.size < 16000:
-                    des = np.concatenate(
-                        [des, np.zeros(16000 - des.size)])
-                t.add_item(id, des)                
-            t.build(100)
-            t.save(f"{db_name}")
+        try:                     
+            self.annoyindx.buildAnnoyIndexDB(self.desArray)
             return True
         except Exception:
             print(Exception)

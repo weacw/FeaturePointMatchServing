@@ -13,41 +13,48 @@ import werkzeug
 class Image_Predict_API(Resource):
     def __init__(self):
         self.ims = ImsES(Elasticsearch())
-    
-    def post(self):
-        # Parse http data
+        self.CVAlgorithm = CVModule()
+        self.image_search = ImageSearch("cache/index.db")
+
+
+    def get_image(self):
         parse = reqparse.RequestParser()
-        parse.add_argument('image_url')
+        parse.add_argument('image_url')        
         parse.add_argument('image_base64')
         parse.add_argument('image', type=werkzeug.datastructures.FileStorage, location='files')
-        args = parse.parse_args()
-        try:
-            # Start matching
-            CVAlgorithm = CVModule()
-            if args['image_url'] is not None:
-                img = CVAlgorithm.url_to_image(args['image_url'])
-                crop_predict_img = CVAlgorithm.crop_center(img,dim=[800,800])
-            elif args['image'] is not None:                
-                img = CVAlgorithm.bytes_to_image(args['image'])
-                crop_predict_img = CVAlgorithm.crop_center(img,dim=[800,800])
-            else:
-                img = CVAlgorithm.read_base64(args['image_base64'])            
-                crop_predict_img = CVAlgorithm.crop_center(img)
-            des = CVAlgorithm.extract_feature(crop_predict_img)
+        parse.add_argument('metadata')
+        self.args = parse.parse_args()        
+        if self.args['image_url'] is not None:
+            img = self.CVAlgorithm.url_to_image(self.args['image_url'])
+            crop_predict_img = self.CVAlgorithm.crop_center(img,dim=[800,800])
+        elif self.args['image'] is not None:                
+            img = self.CVAlgorithm.bytes_to_image(self.args['image'])
+            crop_predict_img = self.CVAlgorithm.crop_center(img,dim=[800,800])
+        else:
+            img = self.CVAlgorithm.read_base64(self.args['image_base64'])            
+            crop_predict_img = self.CVAlgorithm.crop_center(img)
+        return crop_predict_img
 
-            # Init and load search algorithm
-            image_search = ImageSearch("cache/index.db")
-            result_table = image_search.search_batch(des)
+
+    def post(self):
+        try:
+            img = self.get_image()
+        
+            kps,des = self.CVAlgorithm.extract_feature(img)
+            result_table = self.image_search.search_batch(des)    
             
-            # Check the result length, when the result length is greater than 0, get the matching data
-            if len(result_table) > 0:
-                record = self.ims.search_single_record({'id': result_table['id']})
-                if len(record) > 0:
-                    # Remove the field of des. Because the des field is storing the image description data
+            # Check the result length, when the result length is greater than 0, get the matching data            
+            for result in result_table:
+                record = self.ims.search_single_record({'id': result['id']})                
+                RANSAC_percent = self.CVAlgorithm.findHomgraphy(result['good'],kps,record['kps'])
+                if len(record) > 0 and RANSAC_percent>0.5:
+                    # Remove the field of des. Because the des field is storing the image description data and self.CVAlgorithm.findHomgraphy(good,kps,record['kps'])
+                    result.pop('good')
                     record.pop('des')
-                    # merge dict for client
-                    result_table = self.merge_dicts(record, result_table)
-                    return result_table, 200
+                    record.pop('kps')
+                    result['confidence']=RANSAC_percent
+                    result = self.merge_dicts(result,record)
+                    return result, 200
         except Exception as BaseException:
             print(BaseException)
             pass

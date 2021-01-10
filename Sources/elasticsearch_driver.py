@@ -32,6 +32,7 @@ class ImsES(ImsDatabaseBase):
                 "match": rec
             }
         }
+
         res = self.es.search(index=self.index,
                              doc_type=self.doc_type,
                              body=body,
@@ -50,6 +51,7 @@ class ImsES(ImsDatabaseBase):
                 "match_all": {}
             }
         }
+
         return self.es.search(index=self.index, doc_type=self.doc_type, body=body, size=1000)['hits']['hits']
 
     def insert_single_record(self, rec, refresh_after=False):
@@ -57,7 +59,23 @@ class ImsES(ImsDatabaseBase):
         return self.es.index(index=self.index, doc_type=self.doc_type,
                              body=rec, refresh=refresh_after)
 
-    @ timer
+    def search_multiple_record(self, ids):     
+
+        body = {
+            "query": {
+                "ids": {
+                    "values":['eI4T63YB19VrPIlluoCb']
+                }
+            }
+        }
+        res = self.es.search(index=self.index,
+                             doc_type=self.doc_type,
+                             body=body,
+                             size=self.size,
+                             timeout=self.timeout)['hits']['hits']
+        
+        return res
+
     def insert_multiple_record(self, rec):
         action = [{
             "_index": self.index,

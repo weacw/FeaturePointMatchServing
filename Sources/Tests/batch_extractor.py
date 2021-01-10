@@ -48,27 +48,32 @@ urls = [
 
 
 def batch_extractor_form_file(images_path):    
-    try:
-        CVAlgorithm = CVModule()
-        imageTrain = ImageTrain()
-        image_search = ImageSearch(cache_path)
-        image_count = image_search.get_count()
-        image_search.unload()
-        ims = ImsES(Elasticsearch())
+    CVAlgorithm = CVModule()
+    imageTrain = ImageTrain(cache_path)
+    image_search = ImageSearch(cache_path)         
+    image_count = image_search.get_count()
+    image_search.unload()
+    ims = ImsES(Elasticsearch())
+    try:        
         result = {}
         files = [os.path.join(images_path, p)
                 for p in sorted(os.listdir(images_path))]        
         for f in files:               
             img = CVAlgorithm.path_to_image(f)
-            des = CVAlgorithm.extract_feature(img)
-            result_table = image_search.search_batch(des)
+            kps,des = CVAlgorithm.extract_feature(img)
+            result_table = image_search.search_batch(des)       
             if len(result_table) == 0:
+                keypoint_serialize = [{'angle': k.angle, 'response': k.response,'octave':k.octave,'class_id':k.class_id,'pt':k.pt,'size':k.size} for k in kps]
                 # Append data to already dataset
                 new_record = {'id': image_count,
                                 'metadata': f,
-                                'des': des.flatten()}
+                                'des': des.flatten(),
+                                'kps':keypoint_serialize}
                 ims.insert_single_record(new_record, refresh_after=True)
+                print(f"{f} train successed")
                 image_count += 1
+            else:
+                print(f"{f} train failed")
 
         # Loading already dataset
         already_dataset = ims.search_all_record()
@@ -78,7 +83,7 @@ def batch_extractor_form_file(images_path):
             imageTrain.addMarkerDes(key["_source"]["id"],key["_source"]["des"])
 
         # We need the del cache db when out image trainer generator was failed
-        if imageTrain.generateMarkerDB(cache_path) == False:
+        if imageTrain.generateMarkerDB() == False:
             print(len(ims.search_all_record()))
             os.remove(cache_path)
         else:
@@ -87,7 +92,8 @@ def batch_extractor_form_file(images_path):
         # We need the del cache db when out image trainer generator was failed
         print(f"Error:{e}")
         print(len(ims.search_all_record()))
-        os.remove(cache_path)
+        if os.path.exists(cache_path):
+            os.remove(cache_path)
         pass
 
 def batch_extractor_form_url():
@@ -101,9 +107,10 @@ def batch_extractor_form_url():
     try:     
         for f in files:
             img = CVAlgorithm.url_to_image(f)
-            des = CVAlgorithm.extract_feature(img)
-            result_table = image_search.search_batch(des)           
+            kps,des = CVAlgorithm.extract_feature(img)
+            result_table,good = image_search.search_batch(des)       
             if len(result_table) == 0:
+                keypoint_serialize = [{'angle': k.angle, 'response': k.response,'octave':k.octave,'class_id':k.class_id,'pt':k.pt,'size':k.size} for k in kps]
                 # Append data to already dataset
                 new_record = {'id': image_count,
                                 'metadata': f,
@@ -137,6 +144,6 @@ def batch_extractor_form_url():
 
 
 if __name__ == "__main__":   
-    batch_extractor_form_file("../Tests/Beauties/")
+    batch_extractor_form_file("../Tests/Batch/")
     # batch_extractor_form_url()
     
