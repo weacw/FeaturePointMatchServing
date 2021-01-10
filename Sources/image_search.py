@@ -56,6 +56,7 @@ class ImageSearch():
         """
         return self.annoyindx.get_count()
 
+
     def search_batch(self, targetVector):
         """批量检索相似向量
 
@@ -69,11 +70,13 @@ class ImageSearch():
         result_table = list()
         good = None
         
+        # terms检索 避免一次次检索浪费时间
+        data_caches_es = self.ims.search_multiple_record(kn_results)
 
         try:
             for data_index in kn_results:
                 record = dict()
-                flatten_vector = self.ims.search_single_record({"id":data_index})['des']
+                flatten_vector = data_caches_es[data_index]['_source']['des']
 
                 # 避免无法重塑形状
                 if len(flatten_vector) > 12800:

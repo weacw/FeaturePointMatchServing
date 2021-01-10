@@ -8,13 +8,13 @@ import numpy as np
 class CVModule():
     """
     初始化Opencv
-    @ORB：ORB全名为Oriented FAST and Rotated BRIEF，它采用改进的FAST关键点检测方法，使其具有方向性，并采用具有旋转不变性的BRIEF特征描述子。
-    FAST和BRIEF都是非常快速的特征计算方法，因此ORB具有非同一般的性能优势。
+    @sift：sift全名为Scale-invariant feature transform，尺度不变特征转换是一种机器视觉的算法用来侦测与描述影像中的局部性特征，
+    它在空间尺度中寻找极值点，并提取出其位置、尺度、旋转不变数，此算法由David Lowe 在1999年所发表，2004年完善总结。
     @FlannBasedMatcher：Fast Library forApproximate Nearest Neighbors
     """
 
     def __init__(self):
-        self.orb = cv2.SIFT_create(nfeatures=100)
+        self.sift = cv2.SIFT_create(nfeatures=100)
         # index_params = dict(algorithm=6, table_number=12,
         #                     key_size=12, multi_probe_level=1)
         FLANN_INDEX_KDTREE = 0
@@ -29,7 +29,11 @@ class CVModule():
 
     def read_base64(self, base64Image):
         npimg = np.frombuffer(base64.b64decode(base64Image), dtype=np.uint8)
-        return cv2.imdecode(npimg, 2)
+        img = cv2.imdecode(npimg, 2)
+        # Enhanced gray
+        img = np.uint8(
+            np.clip((2 * (np.int16(img)-60) -225), 0, 255))
+        return img
 
     """
     通过URL下载图片
@@ -55,9 +59,9 @@ class CVModule():
     """
     def extract_feature(self, img, shape=(800, 800)):
         img = cv2.resize(img, dsize=shape, interpolation=cv2.INTER_NEAREST)
-        kps = self.orb.detect(img)
+        kps = self.sift.detect(img)
         # kps = sorted(kps, key=lambda x: -x.response)
-        kps, des = self.orb.compute(img, kps)
+        kps, des = self.sift.compute(img, kps)
         return kps, des
 
     """
@@ -66,17 +70,13 @@ class CVModule():
     @dim:裁剪的目标尺寸
     """
 
-    def crop_center(self, img, dim=[512, 512]):
+    def crop_center(self, img, dim=[512, 512]):        
         width, height = img.shape[1], img.shape[0]
         crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
         crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]
         mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)
         crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
-
-        # Enhanced gray
-        crop_img = np.uint8(
-            np.clip((2 * (np.int16(crop_img)-60) -225), 0, 255))
         cv2.imwrite('croped.jpg', crop_img)
         return crop_img
 
@@ -108,7 +108,7 @@ class CVModule():
                               for m in good]).reshape(-1, 1, 2)
         m, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
         matchesMask = mask.ravel().tolist()
-        # correct_matched_kp = [good_kp[i] for i in range(len(good_kp)) if mask[i]]
+
         correct_matched_kp = [good[i] for i in range(len(good)) if mask[i]]
         percent = len(correct_matched_kp)/len(mask)      
         print(f"RANSAC Match length:{percent}")

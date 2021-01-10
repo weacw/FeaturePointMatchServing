@@ -10,15 +10,15 @@ es = Elasticsearch()
 ims = ImsES(es)
 
 cache_path ='../cache/index.db'
-image_search = ImageSearch(cache_path)
-image_count = image_search.get_count()
-image_search.unload()
-print(image_count)
+# image_search = ImageSearch(cache_path)
+# image_count = image_search.get_count()
+# image_search.unload()
+# print(image_count)
 
-ims.delete_all_record()
-print(len(ims.search_all_record()))
-if os.path.exists(cache_path):
-    os.remove(cache_path)
+# ims.delete_all_record()
+# print(len(ims.search_all_record()))
+# if os.path.exists(cache_path):
+#     os.remove(cache_path)
 
 # ims.insert_single_record({"id":1100,"metadata":100},True)
 # record = ims.search_single_record({'id': "1100"})
@@ -32,7 +32,13 @@ if os.path.exists(cache_path):
 #     record.pop('kps')
 #     print(record)
 
-# print(ims.search_multiple_record([1,2,3,4]))
+results = ims.search_multiple_record([1,2,3,4])
+print(type(results))
+for result in results:
+    source = result['_source']
+    source.pop('des')
+    source.pop('kps')
+    print(source)
 
 # print(ims.delete_siginle_record({'title': 90}))
 

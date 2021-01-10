@@ -38,15 +38,20 @@ class Image_Predict_API(Resource):
 
     def post(self):
         try:
-            img = self.get_image()
-        
+            img = self.get_image()            
             kps,des = self.CVAlgorithm.extract_feature(img)
             result_table = self.image_search.search_batch(des)    
-            
+            result_ids_table = list()
+            [result_ids_table.append(result['id'])  for result in result_table]
+            records = self.ims.search_multiple_record(result_ids_table)
+            records_index =0 
+
             # Check the result length, when the result length is greater than 0, get the matching data            
             for result in result_table:
-                record = self.ims.search_single_record({'id': result['id']})                
+                # record = self.ims.search_single_record({'id': result['id']})
+                record = records[records_index]["_source"]
                 RANSAC_percent = self.CVAlgorithm.findHomgraphy(result['good'],kps,record['kps'])
+                records_index+=1
                 if len(record) > 0 and RANSAC_percent>0.5:
                     # Remove the field of des. Because the des field is storing the image description data and self.CVAlgorithm.findHomgraphy(good,kps,record['kps'])
                     result.pop('good')
