@@ -33,6 +33,8 @@ class Image_Train_API(Resource):
 
     def post(self):
         img = self.get_image()
+        if img.shape != (800,800):
+            return {'msg': 'Image size is not enough'}, 200 
         kps,des = self.CVAlgorithm.extract_feature(img)
 
         # Init and load search algorithm
@@ -41,6 +43,9 @@ class Image_Train_API(Resource):
         image_count = image_search.get_count()
         image_search.unload()                
 
+
+        if des is  None:            
+            return {'msg': 'Image description is not enough'}, 200  
 
         if len(result_table) == 0:
             return self.build_record(image_count,kps,des)
