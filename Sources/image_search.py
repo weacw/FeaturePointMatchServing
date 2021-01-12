@@ -71,24 +71,27 @@ class ImageSearch():
         good = None
         
         # terms检索 避免一次次检索浪费时间
-        data_caches_es = self.ims.search_multiple_record(kn_results)
+        data_caches_es = self.ims.search_multiple_record(kn_results)        
 
         try:
-            for data_index in kn_results:
+            # Tips: 由于查询到的循序与Annoy Index查询到的顺序不一致，故使用ES返回数据id为配准
+            for data_index in range(len(kn_results)):            
                 record = dict()
-                flatten_vector = data_caches_es[data_index]['_source']['des']
+                source = data_caches_es[data_index]['_source']
+                flatten_vector = source['des']                                
 
                 # 避免无法重塑形状
                 if len(flatten_vector) > 12800:
-                    vector = self.annoyindx.reshape(flatten_vector,(101,128))
+                    vector = self.annoyindx.reshape(flatten_vector,(int(len(flatten_vector)/128),128))
                 else:
                     vector = self.annoyindx.reshape(flatten_vector,(100,128))
-
-                # vector = self.get_item_vector_by_id(data_index)                
+         
                 good = self.cvmodule.match(targetVector, vector)
 
+                metadata= source['metadata']
                 if len(good) > self.MIN_MATCH_COUNT:
-                    record['id'] = data_index
+                    print(f"Good Point:{len(good)},id:{source['id']},metadata:{metadata}")
+                    record['id'] = source['id']
                     record['matchscore'] = len(good)
                     record['good'] = good
                     result_table.append(record)                    

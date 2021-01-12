@@ -1,4 +1,4 @@
-# config.py
+# configure_gunicorn.py
 import os
 import gevent.monkey
 gevent.monkey.patch_all()

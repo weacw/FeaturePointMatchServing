@@ -15,8 +15,6 @@ class CVModule():
 
     def __init__(self):
         self.sift = cv2.SIFT_create(nfeatures=100)
-        # index_params = dict(algorithm=6, table_number=12,
-        #                     key_size=12, multi_probe_level=1)
         FLANN_INDEX_KDTREE = 0
         index_params = dict(algorithm = FLANN_INDEX_KDTREE,trees = 5)
         search_params = dict(checks=300)
@@ -86,33 +84,38 @@ class CVModule():
     @des2:匹配描述子
     """
 
-    def match(self, des1, des2):       
+    def match(self, des1, des2):    
+
         matches = self.flann.knnMatch(des1, des2, k=2)
+        matches=matches[:100]
         good = []
+
+        # Tips:弃用，用迭代会引发 ValueError: not enough values to unpack (expected 2, got 1)
+
         for m in matches:
             if len(m) == 2:
                 if m[0].distance < 0.75 * m[1].distance:
                     good.append(m[0])
-
-        # 弃用，用迭代会引发 ValueError: not enough values to unpack (expected 2, got 1)
-        # for i, (m, n) in enumerate(matches):
-        #     if len(matches[i]) == 2:
-        #         if m.distance < 0.75*n.distance:
-        #             good.append([m])
         return good
 
     def findHomgraphy(self, good, kps1, kps2):
-        src_pts = np.float32(
+        try:
+            src_pts = np.float32(
             [kps1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-        dst_pts = np.float32([kps2[m.trainIdx]['pt']
-                              for m in good]).reshape(-1, 1, 2)
-        m, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-        matchesMask = mask.ravel().tolist()
+            dst_pts = np.float32([kps2[m.trainIdx]['pt']
+                                for m in good]).reshape(-1, 1, 2)
+            m, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+            matchesMask = mask.ravel().tolist()
 
-        correct_matched_kp = [good[i] for i in range(len(good)) if mask[i]]
-        percent = len(correct_matched_kp)/len(mask)      
-        print(f"RANSAC Match length:{percent}")
-        return percent
+            correct_matched_kp = [good[i] for i in range(len(good)) if mask[i]]
+            percent = len(correct_matched_kp)/len(mask)      
+            print(f"RANSAC Match length:{percent}")
+            return percent
+        except Exception as e:
+            print(f"findHomgraphy:{e}")
+
+        return 0
+        
        
 
     def convetKeypointToDict(self, kps):

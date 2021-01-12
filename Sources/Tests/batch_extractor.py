@@ -10,6 +10,7 @@ from cvmodule import CVModule
 from image_train import ImageTrain
 from image_search import ImageSearch
 import argparse
+import requests
 
 cache_path ='../cache/index.db'
 
@@ -47,103 +48,18 @@ urls = [
 ]
 
 
-def batch_extractor_form_file(images_path):    
-    CVAlgorithm = CVModule()
-    imageTrain = ImageTrain(cache_path)
-    image_search = ImageSearch(cache_path)         
-    image_count = image_search.get_count()
-    image_search.unload()
-    ims = ImsES(Elasticsearch())
-    try:        
-        result = {}
-        files = [os.path.join(images_path, p)
-                for p in sorted(os.listdir(images_path))]        
-        for f in files:               
-            img = CVAlgorithm.path_to_image(f)
-            kps,des = CVAlgorithm.extract_feature(img)
-            result_table = image_search.search_batch(des)       
-            if len(result_table) == 0:
-                keypoint_serialize = [{'angle': k.angle, 'response': k.response,'octave':k.octave,'class_id':k.class_id,'pt':k.pt,'size':k.size} for k in kps]
-                # Append data to already dataset
-                new_record = {'id': image_count,
-                                'metadata': f,
-                                'des': des.flatten(),
-                                'kps':keypoint_serialize}
-                ims.insert_single_record(new_record, refresh_after=True)
-                print(f"{f} train successed")
-                image_count += 1
-            else:
-                print(f"{f} train failed")
-
-        # Loading already dataset
-        already_dataset = ims.search_all_record()
-
-        # Trainning it!
-        for key in already_dataset:
-            imageTrain.addMarkerDes(key["_source"]["id"],key["_source"]["des"])
-
-        # We need the del cache db when out image trainer generator was failed
-        if imageTrain.generateMarkerDB() == False:
-            print(len(ims.search_all_record()))
-            os.remove(cache_path)
-        else:
-            print("Finised Batch extract")
-    except BaseException as e:
-        # We need the del cache db when out image trainer generator was failed
-        print(f"Error:{e}")
-        print(len(ims.search_all_record()))
-        if os.path.exists(cache_path):
-            os.remove(cache_path)
-        pass
-
-def batch_extractor_form_url():
-    files = urls
-    CVAlgorithm = CVModule()
-    imageTrain = ImageTrain()
-    image_search = ImageSearch(cache_path)
-    ims = ImsES(Elasticsearch())
-    image_count = image_search.get_count()
-    image_search.unload()
-    try:     
-        for f in files:
-            img = CVAlgorithm.url_to_image(f)
-            kps,des = CVAlgorithm.extract_feature(img)
-            result_table,good = image_search.search_batch(des)       
-            if len(result_table) == 0:
-                keypoint_serialize = [{'angle': k.angle, 'response': k.response,'octave':k.octave,'class_id':k.class_id,'pt':k.pt,'size':k.size} for k in kps]
-                # Append data to already dataset
-                new_record = {'id': image_count,
-                                'metadata': f,
-                                'des': des.flatten()}
-                ims.insert_single_record(new_record, refresh_after=True)
-                image_count += 1
-
-        # Loading already dataset
-        already_dataset = ims.search_all_record()
-
-        # Trainning it!
-        for key in already_dataset:
-            imageTrain.addMarkerDes(key["_source"]["id"],key["_source"]["des"])
-
-        # We need the del cache db when out image trainer generator was failed
-        if imageTrain.generateMarkerDB(cache_path) == False:
-            print(len(ims.search_all_record()))
-            os.remove(cache_path)
-        else:
-            print("Finised Batch extract")
-    except BaseException as e:
-        # We need the del cache db when out image trainer generator was failed
-        print(f"Error:{e}")
-        print(len(ims.search_all_record()))
-        os.remove(cache_path)
-        pass
-
-
-# batch_extractor_form_url()
-
-
-
-if __name__ == "__main__":   
-    batch_extractor_form_file("../Tests/Batch/")
-    # batch_extractor_form_url()
+class batch_tools():
+    def __init__(self):
+        self.gateway = 'http://127.0.0.1:5000/v1/add_image'
     
+    def startTrain(self, images_path):
+        files = [os.path.join(images_path, p) for p in sorted(os.listdir(images_path))]
+        for f in files:
+            with open(f, 'rb') as img:
+                trainImg = {'image': img}
+                response = requests.post(self.gateway,data={'metadata':f}, files=trainImg)
+                print(f"file:{f},Response:{response.text}")
+
+if __name__ == "__main__":
+    batch = batch_tools()
+    batch.startTrain('../Tests/Benchmark')
