@@ -5,6 +5,7 @@ from elasticsearch import helpers
 import time
 from Utitliy import timer
 
+
 class ImsES(ImsDatabaseBase):
 
     def __init__(self, es, index='images', doc_type='data', timeout='10s', size=100, *args, **kwargs):
@@ -74,6 +75,7 @@ class ImsES(ImsDatabaseBase):
         rec['timestamp'] = datetime.now()
         return self.es.index(index=self.index, doc_type=self.doc_type,
                              body=rec, refresh=refresh_after)
+
     @timer
     def search_multiple_record(self, ids):
         """通过id数组进行一次性多个数据查询
@@ -88,7 +90,7 @@ class ImsES(ImsDatabaseBase):
         body = {
             "query": {
                 "terms": {
-                    "id": ids                   
+                    "id": ids
                 }
             }
         }

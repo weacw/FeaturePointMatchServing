@@ -56,7 +56,7 @@ class CVModule():
     @img:需要抽出描述子的图像
     """
     @timer
-    def extract_feature(self, img, shape=(800, 800)):
+    def extract_feature(self, img, shape=(400, 400)):
         img = cv2.resize(img, dsize=shape, interpolation=cv2.INTER_NEAREST)
         kps = self.sift.detect(img)
         # kps = sorted(kps, key=lambda x: -x.response)

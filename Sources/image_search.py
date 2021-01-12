@@ -65,6 +65,10 @@ class ImageSearch():
         Returns:
             Dict: 检索到最为匹配的图像数据
         """        
+        import time
+
+        start = time.time()
+
         kn_results = self.find_vector(targetVector)                
         result_table = list()
         good = None
@@ -72,7 +76,7 @@ class ImageSearch():
         # terms检索 避免一次次检索浪费时间
         data_caches_es = self.ims.search_multiple_record(kn_results)        
 
-        try:            
+        try:
             # Tips: 由于查询到的循序与Annoy Index查询到的顺序不一致，故使用ES返回数据id为配准
             for data_index in range(len(kn_results)):            
                 record = dict()
@@ -91,9 +95,12 @@ class ImageSearch():
                     record['id'] = source['id']
                     record['matchscore'] = len(good)
                     record['good'] = good
-                    result_table.append(record)
+                    result_table.append(record)        
         except BaseException as ex:
             print(ex)            
+
+        end = time.time()
+        print(end-start)
         result_table.sort(key=self.result_sort, reverse=True)
         return result_table
     
