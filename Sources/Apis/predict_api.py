@@ -18,14 +18,12 @@ class Image_Predict_API(Resource):
         try:
             img, self.args = get_image(self.CVAlgorithm)
             img = self.CVAlgorithm.crop_center(img, dim=[800, 800])
-            kps, des = self.CVAlgorithm.extract_feature(img)
-            result_table = self.image_search.search_batch(des)
-
+            kps, des = self.CVAlgorithm.extract_feature(img)        
+            result_table = self.image_search.search_batch(des)            
             # Collection  the id fields
             result_ids_table = list()
             [result_ids_table.append(result['id']) for result in result_table]
-            records = self.ims.search_multiple_record(result_ids_table)            
-
+            records = self.ims.search_multiple_record(result_ids_table)
             # Check the result length, when the result length is greater than 0, get the matching data
             for data_index in range(len(result_table)):
                 record = records[data_index]["_source"]

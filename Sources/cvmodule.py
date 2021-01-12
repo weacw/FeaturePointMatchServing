@@ -3,7 +3,7 @@ import base64
 import urllib.request
 import pickle
 import numpy as np
-
+from Utitliy import timer
 
 class CVModule():
     """
@@ -55,6 +55,7 @@ class CVModule():
     抽出图像的描述子
     @img:需要抽出描述子的图像
     """
+    @timer
     def extract_feature(self, img, shape=(800, 800)):
         img = cv2.resize(img, dsize=shape, interpolation=cv2.INTER_NEAREST)
         kps = self.sift.detect(img)
@@ -66,8 +67,7 @@ class CVModule():
     将图片进行裁剪
     @img:需裁剪的图片
     @dim:裁剪的目标尺寸
-    """
-
+    """    
     def crop_center(self, img, dim=[512, 512]):        
         width, height = img.shape[1], img.shape[0]
         crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
@@ -83,7 +83,6 @@ class CVModule():
     @des1:匹配描述子
     @des2:匹配描述子
     """
-
     def match(self, des1, des2):    
 
         matches = self.flann.knnMatch(des1, des2, k=2)
@@ -97,15 +96,12 @@ class CVModule():
                 if m[0].distance < 0.75 * m[1].distance:
                     good.append(m[0])
         return good
-
-    def findHomgraphy(self, good, kps1, kps2):
+    @timer
+    def findHomgraphy(self, good, kps1, kps2):        
         try:
-            src_pts = np.float32(
-            [kps1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-            dst_pts = np.float32([kps2[m.trainIdx]['pt']
-                                for m in good]).reshape(-1, 1, 2)
+            src_pts = np.float32([kps1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+            dst_pts = np.float32([kps2[m.trainIdx]['pt'] for m in good]).reshape(-1, 1, 2)
             m, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-            matchesMask = mask.ravel().tolist()
 
             correct_matched_kp = [good[i] for i in range(len(good)) if mask[i]]
             percent = len(correct_matched_kp)/len(mask)      

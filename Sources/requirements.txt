@@ -4,5 +4,5 @@ gevent==20.9.0
 numpy==1.18.1
 elasticsearch==7.9.1
 annoy==1.16.3
-opencv_python==4.3.0.36
+opencv_python==4.5.1.48
 pyzmq==20.0.0

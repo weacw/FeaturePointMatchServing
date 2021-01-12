@@ -4,8 +4,8 @@ from cvmodule import CVModule
 from annoyindex_driver import AnnoyIndex_driver
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
-
-
+from Utitliy import timer
+import datetime
 class ImageSearch():
     def __init__(self, db_name):
         """初始化
@@ -22,7 +22,7 @@ class ImageSearch():
             self.annoyindx.loadDb()
         except BaseException as e:
             pass
-
+    
     def find_vector(self, des):
         """通过向量匹配对应向量
 
@@ -36,7 +36,7 @@ class ImageSearch():
 
     def unload(self):
         self.annoyindx.unload()
-
+    
     def get_item_vector_by_id(self, id):
         """通过数据库id获取该id对应的向量数据
 
@@ -55,8 +55,7 @@ class ImageSearch():
             int: 当前存在数据库内的数据个数
         """
         return self.annoyindx.get_count()
-
-
+    @timer
     def search_batch(self, targetVector):
         """批量检索相似向量
 
@@ -65,15 +64,15 @@ class ImageSearch():
 
         Returns:
             Dict: 检索到最为匹配的图像数据
-        """
-        kn_results = self.find_vector(targetVector)        
+        """        
+        kn_results = self.find_vector(targetVector)                
         result_table = list()
         good = None
         
         # terms检索 避免一次次检索浪费时间
         data_caches_es = self.ims.search_multiple_record(kn_results)        
 
-        try:
+        try:            
             # Tips: 由于查询到的循序与Annoy Index查询到的顺序不一致，故使用ES返回数据id为配准
             for data_index in range(len(kn_results)):            
                 record = dict()
@@ -88,19 +87,15 @@ class ImageSearch():
          
                 good = self.cvmodule.match(targetVector, vector)
 
-                metadata= source['metadata']
-                if len(good) > self.MIN_MATCH_COUNT:
-                    print(f"Good Point:{len(good)},id:{source['id']},metadata:{metadata}")
+                if len(good) > self.MIN_MATCH_COUNT:                 
                     record['id'] = source['id']
                     record['matchscore'] = len(good)
                     record['good'] = good
-                    result_table.append(record)                    
-
+                    result_table.append(record)
         except BaseException as ex:
-            print(ex)
-            pass
+            print(ex)            
         result_table.sort(key=self.result_sort, reverse=True)
         return result_table
-
+    
     def result_sort(self, e):
         return e['matchscore']

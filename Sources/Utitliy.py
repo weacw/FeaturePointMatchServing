@@ -2,6 +2,16 @@ from flask_restful import reqparse
 import werkzeug
 import time
 
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        res = func(*args, **kwargs)
+        print('{:}Total time: {:.5f} s'.format(func,time.time() - start))
+        return res
+    return wrapper
+
+
 def get_image(CVAlgorithm):
     parse = reqparse.RequestParser()
     parse.add_argument('image_url')        
@@ -18,12 +28,3 @@ def get_image(CVAlgorithm):
     return img,args
 
 
-
-
-def timer(func):
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        res = func(*args, **kwargs)
-        print('{:}Total time: {:.2f} s'.format(func,time.time() - start))
-        return res
-    return wrapper

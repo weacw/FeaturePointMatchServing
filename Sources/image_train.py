@@ -2,7 +2,6 @@ import os
 import cv2
 import pickle
 import numpy as np
-# from annoy import AnnoyIndex
 from annoyindex_driver import AnnoyIndex_driver
 
 

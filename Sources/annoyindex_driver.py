@@ -1,7 +1,6 @@
 import numpy as np
 from annoy import AnnoyIndex
 
-
 class AnnoyIndex_driver():
     def __init__(self, _db_path, _metric='manhattan',  _reshape=(100, 128)):
         self.vector_size = 1024
@@ -43,7 +42,7 @@ class AnnoyIndex_driver():
             vector: 图像描述符向量
         """
         return np.array(self.annoyindex.get_item_vector(id)).reshape(self.shape).astype('float32')
-
+    
     def reshape(self, des, shape):
         siez = shape[0]*shape[1]
         if len(des) < siez:

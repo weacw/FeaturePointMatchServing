@@ -3,6 +3,7 @@ from elasticsearch import Elasticsearch
 from ims_database_base import ImsDatabaseBase
 from elasticsearch import helpers
 import time
+from Utitliy import timer
 
 class ImsES(ImsDatabaseBase):
 
@@ -73,7 +74,7 @@ class ImsES(ImsDatabaseBase):
         rec['timestamp'] = datetime.now()
         return self.es.index(index=self.index, doc_type=self.doc_type,
                              body=rec, refresh=refresh_after)
-
+    @timer
     def search_multiple_record(self, ids):
         """通过id数组进行一次性多个数据查询
 
@@ -87,8 +88,32 @@ class ImsES(ImsDatabaseBase):
         body = {
             "query": {
                 "terms": {
-                    "id": ids,
-                    "boost": 1.0
+                    "id": ids                   
+                }
+            }
+        }
+        res = self.es.search(index=self.index,
+                             doc_type=self.doc_type,
+                             body=body,
+                             size=self.size,
+                             timeout=self.timeout)['hits']['hits']
+        return res
+
+    def search_multiple_record_test(self, ids):
+        """通过id数组进行一次性多个数据查询
+
+        Args:
+            ids (Array): 需要查询的Id数组
+
+        Returns:
+            dict: 查询到的所有数据
+        """
+
+        body = {
+            '_source': ['id', 'metadata'],
+            "query": {
+                "terms": {
+                    "id": ids
                 }
             }
         }
