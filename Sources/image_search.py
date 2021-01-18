@@ -1,10 +1,8 @@
 import numpy as np
-# from annoy import AnnoyIndex
 from cvmodule import CVModule
 from annoyindex_driver import AnnoyIndex_driver
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
-from Utitliy import timer
 import datetime
 class ImageSearch():
     def __init__(self, db_name):
@@ -55,7 +53,7 @@ class ImageSearch():
             int: 当前存在数据库内的数据个数
         """
         return self.annoyindx.get_count()
-    @timer
+    
     def search_batch(self, targetVector):
         """批量检索相似向量
 
