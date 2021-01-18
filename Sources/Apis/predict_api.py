@@ -17,7 +17,7 @@ class Image_Predict_API(Resource):
     def post(self):
         try:
             img, self.args = get_image(self.CVAlgorithm)
-            img = self.CVAlgorithm.crop_center(img, dim=[800, 800])
+            img = self.CVAlgorithm.crop_center(img, dim=dim_800x800)
             kps, des = self.CVAlgorithm.extract_feature(img)        
             result_table = self.image_search.search_batch(des)            
             # Collection  the id fields

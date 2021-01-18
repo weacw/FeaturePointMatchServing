@@ -15,11 +15,10 @@ class Image_Train_API(Resource):
         self.image_search = ImageSearch(annoy_index_db_path)
         self.imageTrain = ImageTrain(annoy_index_db_path)
 
-    @timer
     def post(self):
         img, self.args = get_image(self.CVAlgorithm)     
-        img = self.CVAlgorithm.crop_center(img, dim=[800, 800])
-        if img.shape != (800,800):
+        img = self.CVAlgorithm.crop_center(img, dim=dim_800x800)
+        if img.shape != dim_800x800:
             return {'msg': 'Image size is not enough'}, 200 
         kps,des = self.CVAlgorithm.extract_feature(img)
 

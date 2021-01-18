@@ -20,7 +20,7 @@ class Image_Del_API(Resource):
 
     def delete(self):
         img, self.args = get_image(self.CVAlgorithm)
-        img = self.CVAlgorithm.crop_center(img, dim=[800, 800])
+        img = self.CVAlgorithm.crop_center(img, dim=dim_800x800)
         kps, des = self.CVAlgorithm.extract_feature(img)
 
         # Init and load search algorithm

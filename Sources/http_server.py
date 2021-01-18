@@ -1,7 +1,9 @@
+from gevent import monkey
+monkey.patch_all()
 import os
 from flask import Flask
+from gevent import pywsgi
 from flask_restful import  Api
-
 from Apis.predict_api import Image_Predict_API
 from Apis.del_image_api import Image_Del_API
 from Apis.train_api import Image_Train_API
@@ -17,4 +19,5 @@ api.add_resource(Image_Predict_API, '/v1/predict_image')
 
 
 if __name__ == "__main__":
-    app.run()
+    server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+    server.serve_forever()

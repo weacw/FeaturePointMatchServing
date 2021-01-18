@@ -11,7 +11,7 @@ from image_train import ImageTrain
 from image_search import ImageSearch
 import argparse
 import requests
-
+from Utitliy import timer
 cache_path ='../cache/index.db'
 
 
@@ -50,8 +50,8 @@ urls = [
 
 class batch_tools():
     def __init__(self):
-        self.gateway = 'http://127.0.0.1:5000/v1/add_image'
-    
+        self.gateway = 'http://localhost:5000/v1/add_image'
+    @timer
     def startTrain(self, images_path):
         files = [os.path.join(images_path, p) for p in sorted(os.listdir(images_path))]
         for f in files:
@@ -62,4 +62,4 @@ class batch_tools():
 
 if __name__ == "__main__":
     batch = batch_tools()
-    batch.startTrain('../Tests/Benchmark')
+    batch.startTrain('../Tests/CH')

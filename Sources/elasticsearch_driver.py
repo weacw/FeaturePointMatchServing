@@ -76,7 +76,7 @@ class ImsES(ImsDatabaseBase):
         return self.es.index(index=self.index, doc_type=self.doc_type,
                              body=rec, refresh=refresh_after)
 
-    @timer
+
     def search_multiple_record(self, ids):
         """通过id数组进行一次性多个数据查询
 
