@@ -3,7 +3,7 @@ import base64
 import urllib.request
 import pickle
 import numpy as np
-from Utitliy import timer
+
 
 
 class CVModule():
@@ -71,7 +71,7 @@ class CVModule():
         mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)
         crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
-        cv2.imwrite('croped.jpg', crop_img)
+        # cv2.imwrite('croped.jpg', crop_img)
         return crop_img
 
     def match(self, des1, des2):

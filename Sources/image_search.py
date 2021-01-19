@@ -4,6 +4,8 @@ from annoyindex_driver import AnnoyIndex_driver
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
 import datetime
+
+
 class ImageSearch():
     def __init__(self, db_name):
         """初始化
@@ -20,7 +22,7 @@ class ImageSearch():
             self.annoyindx.loadDb()
         except BaseException as e:
             pass
-    
+
     def find_vector(self, des):
         """通过向量匹配对应向量
 
@@ -34,7 +36,7 @@ class ImageSearch():
 
     def unload(self):
         self.annoyindx.unload()
-    
+
     def get_item_vector_by_id(self, id):
         """通过数据库id获取该id对应的向量数据
 
@@ -44,7 +46,7 @@ class ImageSearch():
         Returns:
             vector: 图像描述符向量
         """
-        return self.annoyindx.get_item_vector_by_id(id,self.shape)
+        return self.annoyindx.get_item_vector_by_id(id, self.shape)
 
     def get_count(self):
         """获取当前annoy index数据库的个数
@@ -53,7 +55,7 @@ class ImageSearch():
             int: 当前存在数据库内的数据个数
         """
         return self.annoyindx.get_count()
-    
+
     def search_batch(self, targetVector):
         """批量检索相似向量
 
@@ -62,45 +64,41 @@ class ImageSearch():
 
         Returns:
             Dict: 检索到最为匹配的图像数据
-        """        
-        import time
+        """
 
-        start = time.time()
-
-        kn_results = self.find_vector(targetVector)                
+        kn_results = self.find_vector(targetVector)
         result_table = list()
         good = None
-        
+
         # terms检索 避免一次次检索浪费时间
-        data_caches_es = self.ims.search_multiple_record(kn_results)        
+        data_caches_es = self.ims.search_multiple_record(kn_results)
 
         try:
             # Tips: 由于查询到的循序与Annoy Index查询到的顺序不一致，故使用ES返回数据id为配准
-            for data_index in range(len(kn_results)):            
+            for data_index in range(len(kn_results)):
                 record = dict()
                 source = data_caches_es[data_index]['_source']
-                flatten_vector = source['des']                                
+                flatten_vector = source['des']
 
                 # 避免无法重塑形状
                 if len(flatten_vector) > 12800:
-                    vector = self.annoyindx.reshape(flatten_vector,(int(len(flatten_vector)/128),128))
+                    vector = self.annoyindx.reshape(
+                        flatten_vector, (int(len(flatten_vector)/128), 128))
                 else:
-                    vector = self.annoyindx.reshape(flatten_vector,(100,128))
-         
+                    vector = self.annoyindx.reshape(flatten_vector, (100, 128))
+
                 good = self.cvmodule.match(targetVector, vector)
 
-                if len(good) > self.MIN_MATCH_COUNT:                 
+                if len(good) > self.MIN_MATCH_COUNT:
                     record['id'] = source['id']
                     record['matchscore'] = len(good)
                     record['good'] = good
-                    result_table.append(record)        
+                    result_table.append(record)
         except BaseException as ex:
-            print(ex)            
+            print(ex)
 
-        end = time.time()
-        print(end-start)
         result_table.sort(key=self.result_sort, reverse=True)
         return result_table
-    
+
     def result_sort(self, e):
         return e['matchscore']
