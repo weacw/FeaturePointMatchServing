@@ -13,6 +13,13 @@ It is further developed based on the Opencv ORB detector. It gives the ability t
 2. Execute command to install Dependent package. `install -r Sources/requirements.txt`
 3. Run `python http_server` and `python tcp_server` (Optional)
 
+# How to depoly?
+1. You need install the `Gunicorn`, use `pip install gunicorn` to install!
+2. Go to the Source code folder, `gunicorn -c configure_gunicorn.py http_server:app` to run our service.
+
+> You can make the best configuration according to your needs through the `configure_gunicorn` file.
+
+
 # RestFul API
 
 ###  Add new image
