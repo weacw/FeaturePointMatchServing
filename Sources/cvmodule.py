@@ -15,6 +15,7 @@ class CVModule():
         它在空间尺度中寻找极值点，并提取出其位置、尺度、旋转不变数，此算法由David Lowe 在1999年所发表，2004年完善总结。
         @FlannBasedMatcher：Fast Library forApproximate Nearest Neighbors
         """
+        cv2.useOptimized()
         self.sift = cv2.SIFT_create(nfeatures=100)
         FLANN_INDEX_KDTREE = 0
         index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
@@ -54,10 +55,7 @@ class CVModule():
         抽出图像的描述子
         @img:需要抽出描述子的图像
         """
-
-        img = cv2.resize(img, dsize=shape, interpolation=cv2.INTER_NEAREST)
-        # kps = self.sift.detect(img)
-        # kps, des = self.sift.compute(img, kps)
+        img = cv2.resize(img, dsize=shape, interpolation=cv2.INTER_LINEAR)        
         kps, des = self.sift.detectAndCompute(img, None)
         return kps, des
 
