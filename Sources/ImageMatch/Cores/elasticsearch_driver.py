@@ -1,13 +1,7 @@
+from ImageMatch.Cores.ims_database_base import ImsDatabaseBase
 from datetime import datetime
-from elasticsearch import Elasticsearch
-from ims_database_base import ImsDatabaseBase
-from elasticsearch import helpers
-import time
-from Utitliy import timer
-
 
 class ImsES(ImsDatabaseBase):
-
     def __init__(self, es, index='images', doc_type='data', timeout='10s', size=100, *args, **kwargs):
         self.es = es
         self.index = index
@@ -17,6 +11,7 @@ class ImsES(ImsDatabaseBase):
         if es.indices.exists(index=index):
             self.es.indices.create(index=index, ignore=400)
         super(ImsES, self).__init__(*args, *kwargs)
+        print("Ims ES INIT")
 
     def search_single_record(self, rec):
         """查询单条数据
@@ -75,7 +70,6 @@ class ImsES(ImsDatabaseBase):
         rec['timestamp'] = datetime.now()
         return self.es.index(index=self.index, doc_type=self.doc_type,
                              body=rec, refresh=refresh_after)
-
 
     def search_multiple_record(self, ids):
         """通过id数组进行一次性多个数据查询

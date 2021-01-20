@@ -1,5 +1,5 @@
-import numpy as np
 from annoy import AnnoyIndex
+import numpy as np
 
 class AnnoyIndex_driver():
     def __init__(self, _db_path, _metric='manhattan',  _reshape=(100, 128)):
@@ -68,6 +68,7 @@ class AnnoyIndex_driver():
         """
 
         try:
+            self.annoyindex.unload()
             for e in vectorGroup:
                 des = e['des'][:self.vector_size]
                 id = e['id']
@@ -77,6 +78,7 @@ class AnnoyIndex_driver():
                 self.annoyindex.add_item(id, des)
             self.annoyindex.build(100)
             self.annoyindex.save(self.db_path)
+            self.annoyindex.unload()
             return True
         except Exception as e:
             print(e)

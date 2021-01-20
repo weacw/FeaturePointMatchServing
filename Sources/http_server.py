@@ -1,10 +1,14 @@
+from gevent import monkey
+monkey.patch_all()
 import os
 from flask import Flask
 from flask_restful import Api
-from Apis.predict_api import Image_Predict_API
-from Apis.del_image_api import Image_Del_API
-from Apis.train_api import Image_Train_API
+from ImageMatch.Restful.predict_api import Image_Predict_API
+from ImageMatch.Restful.del_image_api import Image_Del_API
+from ImageMatch.Restful.train_api import Image_Train_API
+from gevent.pywsgi import WSGIServer
 
+monkey.patch_all()
 if not os.path.exists("cache"):
     os.makedirs("cache")
 
@@ -16,4 +20,6 @@ api.add_resource(Image_Predict_API, '/v1/predict_image')
 
 
 if __name__ == "__main__":
-    app.run()
+    http_server = WSGIServer(('0.0.0.0', 5000), app)
+    http_server.serve_forever()
+    # app.run()

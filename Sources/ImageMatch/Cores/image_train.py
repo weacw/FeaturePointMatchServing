@@ -1,9 +1,4 @@
-import os
-import cv2
-import pickle
-import numpy as np
-from annoyindex_driver import AnnoyIndex_driver
-
+from ImageMatch.Cores  import *
 
 class ImageTrain():
     def __init__(self,db_name):
@@ -11,6 +6,7 @@ class ImageTrain():
         """
         self.desArray = []
         self.annoyindx = AnnoyIndex_driver(db_name)
+        
 
 
     def addMarkerDes(self,id, des):

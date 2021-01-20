@@ -1,9 +1,6 @@
-import numpy as np
-from cvmodule import CVModule
-from annoyindex_driver import AnnoyIndex_driver
-from elasticsearch_driver import ImsES
-from elasticsearch import Elasticsearch
-import datetime
+from ImageMatch.Cores import *
+MIN_MATCH_COUNT = 10
+shape = (100, 128)
 
 
 class ImageSearch():
@@ -13,15 +10,7 @@ class ImageSearch():
         Args:
             db_name (string): 需要加载的数据库名称
         """
-        self.MIN_MATCH_COUNT = 10
-        self.shape = (100, 128)
-        self.cvmodule = CVModule()
-        self.annoyindx = AnnoyIndex_driver(db_name)
-        self.ims = ImsES(Elasticsearch())
-        try:
-            self.annoyindx.loadDb()
-        except BaseException as e:
-            pass
+        pass
 
     def find_vector(self, des):
         """通过向量匹配对应向量
@@ -32,10 +21,10 @@ class ImageSearch():
         Returns:
             vector: 匹配到的向量
         """
-        return self.annoyindx.find_vector(des)
+        return annoyindx.find_vector(des)
 
     def unload(self):
-        self.annoyindx.unload()
+        annoyindx.unload()
 
     def get_item_vector_by_id(self, id):
         """通过数据库id获取该id对应的向量数据
@@ -46,7 +35,7 @@ class ImageSearch():
         Returns:
             vector: 图像描述符向量
         """
-        return self.annoyindx.get_item_vector_by_id(id, self.shape)
+        return annoyindx.get_item_vector_by_id(id, shape)
 
     def get_count(self):
         """获取当前annoy index数据库的个数
@@ -54,7 +43,7 @@ class ImageSearch():
         Returns:
             int: 当前存在数据库内的数据个数
         """
-        return self.annoyindx.get_count()
+        return annoyindx.get_count()
 
     def search_batch(self, targetVector):
         """批量检索相似向量
@@ -71,7 +60,7 @@ class ImageSearch():
         good = None
 
         # terms检索 避免一次次检索浪费时间
-        data_caches_es = self.ims.search_multiple_record(kn_results)
+        data_caches_es = ims.search_multiple_record(kn_results)
 
         try:
             # Tips: 由于查询到的循序与Annoy Index查询到的顺序不一致，故使用ES返回数据id为配准
@@ -82,14 +71,14 @@ class ImageSearch():
 
                 # 避免无法重塑形状
                 if len(flatten_vector) > 12800:
-                    vector = self.annoyindx.reshape(
+                    vector = annoyindx.reshape(
                         flatten_vector, (int(len(flatten_vector)/128), 128))
                 else:
-                    vector = self.annoyindx.reshape(flatten_vector, (100, 128))
+                    vector = annoyindx.reshape(flatten_vector, (100, 128))
 
-                good = self.cvmodule.match(targetVector, vector)
+                good = CVAlgorithm.match(targetVector, vector)
 
-                if len(good) > self.MIN_MATCH_COUNT:
+                if len(good) > MIN_MATCH_COUNT:
                     record['id'] = source['id']
                     record['matchscore'] = len(good)
                     record['good'] = good

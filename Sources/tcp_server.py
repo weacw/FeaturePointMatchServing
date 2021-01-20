@@ -10,22 +10,23 @@ from cvmodule import CVModule
 from image_search import ImageSearch
 from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
-
-
+from Utitliy import get_image_b64,timer
+dim_800x800=(800,800)
+annoy_index_db_path='cache/index.db'
 class Server(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
     def start_server(self):
         context = zmq.Context()
-        frontend = context.socket(zmq.REP)
+        frontend = context.socket(zmq.XREP)
         frontend.bind('tcp://*:4531')
 
         backend = context.socket(zmq.XREQ)
         backend.bind('inproc://backend')
 
         workers = []
-        for i in range(2):
+        for i in range(4):
             worker = ServerWorker(context)
             worker.setName(f"MatchServer-{i}")
             # worker.setDaemon(True)
@@ -46,6 +47,7 @@ class Server(threading.Thread):
             if backend in sockets:
                 if sockets[backend] == zmq.POLLIN:
                     msg = backend.recv()
+                    print(msg)
                     frontend.send(msg)
 
         frontend.close()
@@ -59,8 +61,9 @@ class ServerWorker(threading.Thread):
     def __init__(self, context):
         threading.Thread.__init__(self)
         self.context = context
-        self.CVModule = CVModule()
         self.ims = ImsES(Elasticsearch())
+        self.CVAlgorithm = CVModule()
+        self.image_search = ImageSearch(annoy_index_db_path)
 
     def run(self):
         worker = self.context.socket(zmq.XREQ)
@@ -68,25 +71,33 @@ class ServerWorker(threading.Thread):
         print('Worker started')
         recvCount = 0
         while True:
-            data = worker.recv()
-            if len(data) > 5:
-                img = self.CVModule.read_base64(data)
-                crop_predict_img = self.CVModule.crop_center(img, int(
-                    img.shape[0]*0.8), int(img.shape[0]*0.8))
-                kp, des = self.CVModule.extract_feature(crop_predict_img)
-                image_search = ImageSearch("cache/index.db")
-                result_table = image_search.search_batch(des)
-                   
-                if len(result_table) > 0:
-                    record = self.ims.search_single_record(
-                        {'id': result_table['id']})
-                    if len(record) > 0:
+            recv_data = worker.recv()
+            if len(recv_data) > 5:
+                img = get_image_b64(self.CVAlgorithm,recv_data)
+                img = self.CVAlgorithm.crop_center(img, dim=dim_800x800)
+                kps, des = self.CVAlgorithm.extract_feature(img)
+                result_table = self.image_search.search_batch(des)
+                # Collection  the id fields
+                result_ids_table = list()
+                [result_ids_table.append(result['id']) for result in result_table]
+                records = self.ims.search_multiple_record(result_ids_table)
+                # Check the result length, when the result length is greater than 0, get the matching data
+                for data_index in range(len(result_table)):
+                    record = records[data_index]["_source"]
+                    data = result_table[data_index]
+                    RANSAC_percent = self.CVAlgorithm.findHomgraphy(
+                        data['good'], kps, record['kps'])
+                    if len(record) > 0 and RANSAC_percent > 0.5:
+                        # Remove the field of des. Because the des field is storing the image description data
                         record.pop('des')
-                        result_table = self.merge_dicts(record, result_table)
-                        worker.send(json.dumps(result_table).encode('utf8'))
-                else:
-                    worker.send(json.dumps({}).encode('utf8'))
-            del data
+                        record.pop('kps')
+                        data.pop('good')
+                        data['confidence'] = RANSAC_percent
+                        data = self.merge_dicts(data, record)
+                        worker.send(json.dumps(data).encode('utf8'))
+            else:
+                worker.send(json.dumps({}).encode('utf8'))
+            del recv_data
 
         worker.close()
 
@@ -96,8 +107,9 @@ class ServerWorker(threading.Thread):
         return dict3
 
 
-server = Server()
-server.start_server()
-server.setDaemon(True)
-server.setName("ImageMatch")
-server.join()
+if __name__ == "__main__":
+    server = Server()
+    server.start_server()
+    # server.setDaemon(True)
+    server.setName("ImageMatch")
+    server.join()
