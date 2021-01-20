@@ -1,4 +1,5 @@
 from ImageMatch.Cores import *
+from ImageMatch.Cores.Utitliy import decode_vector
 MIN_MATCH_COUNT = 10
 shape = (100, 128)
 
@@ -10,7 +11,8 @@ class ImageSearch():
         Args:
             db_name (string): 需要加载的数据库名称
         """
-        pass
+        self.annoyindx = AnnoyIndex_driver('cache/index.db')
+        
 
     def find_vector(self, des):
         """通过向量匹配对应向量
@@ -21,10 +23,10 @@ class ImageSearch():
         Returns:
             vector: 匹配到的向量
         """
-        return annoyindx.find_vector(des)
+        return self.annoyindx.find_vector(des)
 
     def unload(self):
-        annoyindx.unload()
+        self.annoyindx.unload()
 
     def get_item_vector_by_id(self, id):
         """通过数据库id获取该id对应的向量数据
@@ -35,7 +37,7 @@ class ImageSearch():
         Returns:
             vector: 图像描述符向量
         """
-        return annoyindx.get_item_vector_by_id(id, shape)
+        return self.annoyindx.get_item_vector_by_id(id, shape)
 
     def get_count(self):
         """获取当前annoy index数据库的个数
@@ -43,9 +45,10 @@ class ImageSearch():
         Returns:
             int: 当前存在数据库内的数据个数
         """
-        return annoyindx.get_count()
+        return self.annoyindx.get_count()
 
     def search_batch(self, targetVector):
+        self.annoyindx.loadDb()
         """批量检索相似向量
 
         Args:
@@ -55,26 +58,26 @@ class ImageSearch():
             Dict: 检索到最为匹配的图像数据
         """
 
-        kn_results = self.find_vector(targetVector)
+        kn_results = self.find_vector(targetVector)        
         result_table = list()
         good = None
 
         # terms检索 避免一次次检索浪费时间
-        data_caches_es = ims.search_multiple_record(kn_results)
+        if len(kn_results) > 0:
+            data_caches_es = ims.search_multiple_record(kn_results)
 
         try:
             # Tips: 由于查询到的循序与Annoy Index查询到的顺序不一致，故使用ES返回数据id为配准
             for data_index in range(len(kn_results)):
                 record = dict()
-                source = data_caches_es[data_index]['_source']
-                flatten_vector = source['des']
-
+                source = data_caches_es[data_index]
+                flatten_vector = decode_vector(source['des'])                
                 # 避免无法重塑形状
                 if len(flatten_vector) > 12800:
-                    vector = annoyindx.reshape(
+                    vector = self.annoyindx.reshape(
                         flatten_vector, (int(len(flatten_vector)/128), 128))
                 else:
-                    vector = annoyindx.reshape(flatten_vector, (100, 128))
+                    vector = self.annoyindx.reshape(flatten_vector, (100, 128))
 
                 good = CVAlgorithm.match(targetVector, vector)
 

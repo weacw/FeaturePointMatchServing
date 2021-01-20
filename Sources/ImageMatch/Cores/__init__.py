@@ -12,11 +12,12 @@ from ImageMatch.Cores.Utitliy import get_image
 from ImageMatch.Cores.configure_runtime import *
 
 from ImageMatch.Cores.annoyindex_driver import AnnoyIndex_driver
-annoyindx = AnnoyIndex_driver('cache/index.db')
-annoyindx.loadDb()
 
-from ImageMatch.Cores.ims_database_base import ImsDatabaseBase
-ims = ImsES(Elasticsearch())  
+
+# from ImageMatch.Cores.ims_database_base import ImsDatabaseBase
+# ims = ImsES(Elasticsearch())  
+from ImageMatch.Cores.redis_driver import redis_driver
+ims = redis_driver()
 
 from ImageMatch.Cores.cvmodule import CVModule
 CVAlgorithm = CVModule()

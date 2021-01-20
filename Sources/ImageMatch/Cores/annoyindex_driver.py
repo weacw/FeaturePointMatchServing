@@ -10,7 +10,9 @@ class AnnoyIndex_driver():
         self.annoyindex = AnnoyIndex(self.vector_size, self.metric)
 
     def loadDb(self):
-        self.annoyindex.load(self.db_path)
+        import os
+        if os.path.exists(self.db_path):
+            self.annoyindex.load(self.db_path)
 
     def find_vector(self, des):
         """通过向量匹配对应向量
@@ -67,15 +69,14 @@ class AnnoyIndex_driver():
             Bool: True即为构建数据库成功，反之则为失败
         """
 
-        try:
-            self.annoyindex.unload()
+        try:    
             for e in vectorGroup:
                 des = e['des'][:self.vector_size]
                 id = e['id']
                 if des.size < self.vector_size:
                     des = np.concatenate(
                         [des, np.zeros(self.vector_size - des.size)])
-                self.annoyindex.add_item(id, des)
+                self.annoyindex.add_item(int(id), des)
             self.annoyindex.build(100)
             self.annoyindex.save(self.db_path)
             self.annoyindex.unload()
