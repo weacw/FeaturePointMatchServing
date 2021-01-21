@@ -1,11 +1,10 @@
 from ImageMatch.Restful import *
 from ImageMatch.Cores.image_train import ImageTrain
-imageTrain = ImageTrain(annoy_index_db_path)
 
 
 class Image_Train_API(Resource):
     def __init__(self):
-        pass
+        self.imageTrain = ImageTrain(annoy_index_db_path)
 
     def post(self):
         img, self.args = get_image(CVAlgorithm)
@@ -28,9 +27,8 @@ class Image_Train_API(Resource):
 
         # Annoy index data found, We also need to match the data one by one
         for data in result_table:
-            record = ims.search_single_record({'id': data['id']})
-            RANSAC_percent = CVAlgorithm.findHomgraphy(
-                data['good'], kps, record['kps'])
+            record = ims.search_single_record(data['id'])
+            RANSAC_percent = CVAlgorithm.findHomgraphy(data['good'], kps, record['kps'])
 
             # If it finds any very similar data, it will jump out of the test directly
             if RANSAC_percent > 0.5:
@@ -58,9 +56,9 @@ class Image_Train_API(Resource):
 
         # Trainning it!
         for key in already_dataset:
-            imageTrain.addMarkerDes(
+            self.imageTrain.addMarkerDes(
                 key["_source"]["id"], key["_source"]["des"])
 
         # Rebuild index
-        if imageTrain.generateMarkerDB():
+        if self.imageTrain.generateMarkerDB():
             return {'msg': 'success'}

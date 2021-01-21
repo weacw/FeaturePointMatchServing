@@ -1,5 +1,7 @@
 from ImageMatch.Cores.ims_database_base import ImsDatabaseBase
 from datetime import datetime
+from ImageMatch.Cores.Utitliy import timer
+
 
 class ImsES(ImsDatabaseBase):
     def __init__(self, es, index='images', doc_type='data', timeout='10s', size=100, *args, **kwargs):
@@ -8,12 +10,23 @@ class ImsES(ImsDatabaseBase):
         self.doc_type = doc_type
         self.timeout = timeout
         self.size = size
-        if es.indices.exists(index=index):
+
+        mapping = {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        }
+
+        if not es.indices.exists(index=index):
             self.es.indices.create(index=index, ignore=400)
+            put_mapping(index=self.index, doc_type=self.doc_type, body=mapping)
         super(ImsES, self).__init__(*args, *kwargs)
         print("Ims ES INIT")
 
-    def search_single_record(self, rec):
+    @timer
+    def search_single_record(self, id):
         """查询单条数据
 
         Args:
@@ -22,18 +35,35 @@ class ImsES(ImsDatabaseBase):
         Returns:
             dict: 匹配到的数据
         """
-
         body = {
             "query": {
-                "match": rec
+                "constant_score": {
+                    "filter": {
+                        "term": {
+                            "id": id
+                        }
+                    }
+                }
             }
         }
+        # body = {
+        #     "query": {
+        #         "bool": {
+        #             "must": [
+        #                 {"match": {"id":  id}},                       
+        #             ]
+        #         }
+        #     }
+        # }
 
         res = self.es.search(index=self.index,
                              doc_type=self.doc_type,
                              body=body,
                              size=self.size,
                              timeout=self.timeout)['hits']['hits']
+
+        # with open(f'{id}.txt','w') as f:
+        #     f.write(str(res[0]['_source']))
         # Avoid Empty error
         if len(res) > 0:
             res = res[0]['_source']
@@ -68,9 +98,13 @@ class ImsES(ImsDatabaseBase):
         """
 
         rec['timestamp'] = datetime.now()
-        return self.es.index(index=self.index, doc_type=self.doc_type,
-                             body=rec, refresh=refresh_after)
+        return self.es.index(index=self.index,
+                             doc_type=self.doc_type,
+                             id=rec['id'],
+                             body=rec,
+                             refresh=refresh_after)
 
+    @timer
     def search_multiple_record(self, ids):
         """通过id数组进行一次性多个数据查询
 
@@ -83,8 +117,12 @@ class ImsES(ImsDatabaseBase):
 
         body = {
             "query": {
-                "terms": {
-                    "id": ids
+                "constant_score": {
+                    "filter": {
+                        "terms": {
+                            "id": ids
+                        }
+                    }
                 }
             }
         }

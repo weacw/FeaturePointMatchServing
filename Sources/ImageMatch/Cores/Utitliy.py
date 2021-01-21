@@ -7,7 +7,7 @@ def timer(func):
     def wrapper(*args, **kwargs):
         start = time.time()
         res = func(*args, **kwargs)
-        print('{:}Total time: {:.5f} s'.format(func, time.time() - start))
+        print('{:}Total time: {:.5f} ms'.format(func, (time.time() - start)*1000))
         return res
     return wrapper
 

@@ -4,14 +4,10 @@ import os
 from flask_restful import Resource, reqparse
 import sys
 sys.path.append("..")
-from elasticsearch import Elasticsearch
-from elasticsearch_driver import ImsES
-from cvmodule import CVModule
-from image_train import ImageTrain
-from image_search import ImageSearch
+from ImageMatch.Cores import *
 import argparse
 import requests
-from Utitliy import timer
+from ImageMatch.Cores.Utitliy import timer
 cache_path ='../cache/index.db'
 
 
@@ -62,4 +58,4 @@ class batch_tools():
 
 if __name__ == "__main__":
     batch = batch_tools()
-    batch.startTrain('../Tests/CH')
+    batch.startTrain('../Tests/Benchmark')

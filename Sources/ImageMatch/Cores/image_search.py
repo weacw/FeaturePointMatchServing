@@ -54,37 +54,27 @@ class ImageSearch():
         Returns:
             Dict: 检索到最为匹配的图像数据
         """
+        annoyindx.loadDb()
+        kn_results = self.find_vector(targetVector)        
+        result_table = list()       
 
-        kn_results = self.find_vector(targetVector)
-        result_table = list()
-        good = None
+        for data_index in kn_results:
+            data_caches_es = ims.search_single_record(data_index)
+            flatten_vector = data_caches_es['des']
 
-        # terms检索 避免一次次检索浪费时间
-        data_caches_es = ims.search_multiple_record(kn_results)
+            # 避免无法重塑形状
+            if len(flatten_vector) > 12800:
+                vector = annoyindx.reshape(
+                    flatten_vector, (int(len(flatten_vector)/128), 128))
+            else:
+                vector = annoyindx.reshape(flatten_vector, (100, 128))
 
-        try:
-            # Tips: 由于查询到的循序与Annoy Index查询到的顺序不一致，故使用ES返回数据id为配准
-            for data_index in range(len(kn_results)):
-                record = dict()
-                source = data_caches_es[data_index]['_source']
-                flatten_vector = source['des']
+            good = CVAlgorithm.match(targetVector, vector)
 
-                # 避免无法重塑形状
-                if len(flatten_vector) > 12800:
-                    vector = annoyindx.reshape(
-                        flatten_vector, (int(len(flatten_vector)/128), 128))
-                else:
-                    vector = annoyindx.reshape(flatten_vector, (100, 128))
-
-                good = CVAlgorithm.match(targetVector, vector)
-
-                if len(good) > MIN_MATCH_COUNT:
-                    record['id'] = source['id']
-                    record['matchscore'] = len(good)
-                    record['good'] = good
-                    result_table.append(record)
-        except BaseException as ex:
-            print(ex)
+            if len(good) > MIN_MATCH_COUNT:                
+                data_caches_es['matchscore'] = len(good)
+                data_caches_es['good'] = good
+                result_table.append(data_caches_es)        
 
         result_table.sort(key=self.result_sort, reverse=True)
         return result_table

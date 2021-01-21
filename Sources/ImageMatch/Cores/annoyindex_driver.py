@@ -1,6 +1,6 @@
 from annoy import AnnoyIndex
 import numpy as np
-
+import os
 class AnnoyIndex_driver():
     def __init__(self, _db_path, _metric='manhattan',  _reshape=(100, 128)):
         self.vector_size = 1024
@@ -10,7 +10,8 @@ class AnnoyIndex_driver():
         self.annoyindex = AnnoyIndex(self.vector_size, self.metric)
 
     def loadDb(self):
-        self.annoyindex.load(self.db_path)
+        if os.path.exists(self.db_path):
+            self.annoyindex.load(self.db_path)
 
     def find_vector(self, des):
         """通过向量匹配对应向量
