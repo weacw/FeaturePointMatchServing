@@ -27,7 +27,7 @@ class AnnoyIndex_driver():
         des = des.flatten()[: self.vector_size]
         if des.size < self.vector_size:
             des = np.concatenate([des, np.zeros(self.vector_size - des.size)])
-        data = self.annoyindex.get_nns_by_vector(des, n=20)
+        data = self.annoyindex.get_nns_by_vector(des, n=10)
         return data
 
     def unload(self):

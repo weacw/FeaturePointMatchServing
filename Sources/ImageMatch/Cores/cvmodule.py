@@ -103,7 +103,7 @@ class CVModule():
 
             correct_matched_kp = [good[i] for i in range(len(good)) if mask[i]]
             percent = len(correct_matched_kp)/len(mask)
-            print(f"RANSAC Match length:{percent}")
+            # print(f"RANSAC Match length:{percent}")
             return percent
         except Exception as e:
             print(f"findHomgraphy:{e}")

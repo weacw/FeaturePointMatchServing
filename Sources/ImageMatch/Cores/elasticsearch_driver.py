@@ -16,7 +16,7 @@ class ImsES(ImsDatabaseBase):
         super(ImsES, self).__init__(*args, *kwargs)
         print("Ims ES INIT")
 
-    @timer
+
     def search_single_record(self, id):
         """查询单条数据
 
