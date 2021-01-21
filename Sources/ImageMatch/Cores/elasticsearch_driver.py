@@ -11,17 +11,8 @@ class ImsES(ImsDatabaseBase):
         self.timeout = timeout
         self.size = size
 
-        mapping = {
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        }
-
         if not es.indices.exists(index=index):
             self.es.indices.create(index=index, ignore=400)
-            put_mapping(index=self.index, doc_type=self.doc_type, body=mapping)
         super(ImsES, self).__init__(*args, *kwargs)
         print("Ims ES INIT")
 
@@ -46,15 +37,6 @@ class ImsES(ImsDatabaseBase):
                 }
             }
         }
-        # body = {
-        #     "query": {
-        #         "bool": {
-        #             "must": [
-        #                 {"match": {"id":  id}},                       
-        #             ]
-        #         }
-        #     }
-        # }
 
         res = self.es.search(index=self.index,
                              doc_type=self.doc_type,
@@ -62,8 +44,7 @@ class ImsES(ImsDatabaseBase):
                              size=self.size,
                              timeout=self.timeout)['hits']['hits']
 
-        # with open(f'{id}.txt','w') as f:
-        #     f.write(str(res[0]['_source']))
+     
         # Avoid Empty error
         if len(res) > 0:
             res = res[0]['_source']
