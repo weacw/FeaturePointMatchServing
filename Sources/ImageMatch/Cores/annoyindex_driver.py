@@ -31,7 +31,7 @@ class AnnoyIndex_driver():
             des = np.concatenate([des, np.zeros(self.vector_size - des.size)])
         data_tuple = self.annoyindex.get_nns_by_vector(des, n=15, include_distances=True)        
         print(data_tuple)
-        #过滤，相似距离大于30000的图像
+        #过滤，相似距离大于32000的图像
         data = list()
         for data_inex in range(0, len(data_tuple[0])):
             if data_tuple[1][data_inex] > 32000:
