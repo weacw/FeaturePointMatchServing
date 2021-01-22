@@ -1,13 +1,6 @@
-import numpy as np
-import cv2
 import os
-from flask_restful import Resource, reqparse
-import sys
-sys.path.append("..")
-from ImageMatch.Cores import *
 import argparse
 import requests
-from ImageMatch.Cores.Utitliy import timer
 cache_path ='../cache/index.db'
 
 
@@ -46,8 +39,8 @@ urls = [
 
 class batch_tools():
     def __init__(self):
-        self.gateway = 'http://localhost:5000/v1/add_image'
-    @timer
+        self.gateway = 'http://101.132.187.245/v1/add_image'
+    
     def startTrain(self, images_path):
         files = [os.path.join(images_path, p) for p in sorted(os.listdir(images_path))]
         for f in files:
@@ -58,4 +51,4 @@ class batch_tools():
 
 if __name__ == "__main__":
     batch = batch_tools()
-    batch.startTrain('../Tests/Benchmark')
+    batch.startTrain('../Tests/Markers')

@@ -50,6 +50,8 @@ class CVModule():
 
     def bytes_to_image(self, bytes):
         image = np.asarray(bytearray(bytes.read()), dtype="uint8")
+        if image is None:
+            return None
         return cv2.imdecode(image, 0)
 
     def extract_feature(self, img, shape=(400, 400)):

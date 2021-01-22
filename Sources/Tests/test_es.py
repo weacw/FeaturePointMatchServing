@@ -14,10 +14,10 @@ cache_path ='../cache/index.db'
 # image_search.unload()
 # print(image_count)
 
-ims.delete_all_record()
-print(len(ims.search_all_record()))
-if os.path.exists(cache_path):
-    os.remove(cache_path)
+# ims.delete_all_record()
+# print(len(ims.search_all_record()))
+# if os.path.exists(cache_path):
+#     os.remove(cache_path)
 
 # ims.insert_single_record({"id":1100,"metadata":100},True)
 # record = ims.search_single_record({'id': "1100"})
@@ -44,7 +44,7 @@ test()
 
 # print(ims.search_single_record({'title': 90}))
 # print(ims.delete_all_record())
-print(len(ims.search_all_record()))
+# print(len(ims.search_all_record()))
 
 
 # ims.delete_all_record()

@@ -18,30 +18,14 @@ class Image_Predict_API(Resource):
         self.args = parse.parse_args()
 
     def post(self):
-        try:            
-            img = get_image(CVAlgorithm,self.args)
+        try:
+            img = get_image(CVAlgorithm, self.args)
             img = CVAlgorithm.crop_center(img, dim=dim_800x800)
             kps, des = CVAlgorithm.extract_feature(img)
-            result_table = image_search.search_batch(des,kps)
-            # Collection  the id fields
-            # result_ids_table = list()
-            # [result_ids_table.append(result['id']) for result in result_table]
-            # records = ims.search_multiple_record(result_ids_table)
-            # Check the result length, when the result length is greater than 0, get the matching data
-            # idx = 0
-            # for data_index in result_table:
-            #     print(f'idx:{idx}')
-            #     idx += 1
-            #     data = data_index
-            #     RANSAC_percent = CVAlgorithm.findHomgraphy(data['good'], kps, data['kps'])
-            #     if RANSAC_percent > 0.5:
-            #         # Remove the field of des. Because the des field is storing the image description data
-            #         data.pop('des')
-            #         data.pop('kps')
-            #         data.pop('good')
-            #         data['confidence'] = RANSAC_percent
-            #         # data = merge_dicts(data, record)
-            #         return data, 200
+            image_search = ImageSearch(annoy_index_db_path)
+            result_table = image_search.search_batch(des, kps)
+            if result_table != None:
+                return result_table, 200
         except Exception as BaseException:
             print(BaseException)
             pass

@@ -1,15 +1,13 @@
-from ImageMatch.Cores  import *
+from ImageMatch.Cores import *
 
 class ImageTrain():
-    def __init__(self,db_name):
+    def __init__(self, db_name):
         """初始化
         """
         self.desArray = []
-        self.annoyindx = AnnoyIndex_driver(db_name)
-        
+        print("Image Train")
 
-
-    def addMarkerDes(self,id, des):
+    def addMarkerDes(self, id, des):
         """添加单个识别图数据
 
         Args:
@@ -32,8 +30,9 @@ class ImageTrain():
         Returns:
             Bool: True即为构建数据库成功，反之则为失败
         """
-        try:                     
-            self.annoyindx.buildAnnoyIndexDB(self.desArray)
+        try:
+            annoyindx = AnnoyIndex_driver('cache/index.db')            
+            annoyindx.buildAnnoyIndexDB(self.desArray)
             return True
         except Exception:
             print(Exception)
