@@ -45,7 +45,7 @@ class ImageSearch():
         """
         return annoyindx.get_count()
 
-    def search_batch(self, targetVector):
+    def search_batch(self, targetVector,kps):
         """批量检索相似向量
 
         Args:
@@ -71,10 +71,12 @@ class ImageSearch():
 
             good = CVAlgorithm.match(targetVector, vector)
 
-            if len(good) > MIN_MATCH_COUNT:                
-                data_caches_es['matchscore'] = len(good)
-                data_caches_es['good'] = good
-                result_table.append(data_caches_es)        
+            if len(good) > MIN_MATCH_COUNT:
+                RANSAC_percent = CVAlgorithm.findHomgraphy(good, kps, data_caches_es['kps'])
+                print(RANSAC_percent)
+                # data_caches_es['matchscore'] = len(good)
+                # data_caches_es['good'] = good
+                # result_table.append(data_caches_es)        
 
         result_table.sort(key=self.result_sort, reverse=True)
         return result_table

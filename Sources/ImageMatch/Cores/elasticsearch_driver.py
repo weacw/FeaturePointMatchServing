@@ -13,8 +13,7 @@ class ImsES(ImsDatabaseBase):
 
         if not es.indices.exists(index=index):
             self.es.indices.create(index=index, ignore=400)
-        super(ImsES, self).__init__(*args, *kwargs)
-        print("Ims ES INIT")
+        super(ImsES, self).__init__(*args, *kwargs)        
 
 
     def search_single_record(self, id):

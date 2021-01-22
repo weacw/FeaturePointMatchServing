@@ -8,7 +8,8 @@ It is further developed based on the Opencv ORB detector. It gives the ability t
 * Tcp Server is a predict and matching server(Optional)
 
 # How to install?
-
+1. `apt-get update`and`apt-get upgrade` 
+2. `pip install --upgrade setuptools` or `pip install nose`
 1. Install the [ `Elasticsearch` ](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) in your server
 2. Execute command to install Dependent package. `install -r Sources/requirements.txt`
 3. Run `python http_server` and `python tcp_server` (Optional)

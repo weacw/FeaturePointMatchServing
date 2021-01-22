@@ -7,7 +7,7 @@ cv2.useOptimized()
 sift = cv2.SIFT_create(nfeatures=100)
 FLANN_INDEX_KDTREE = 0
 index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=20)
-search_params = dict(checks=300)
+search_params = dict(checks=150)
 flann = cv2.FlannBasedMatcher(index_params, search_params)
 
 
@@ -21,6 +21,7 @@ class CVModule():
         它在空间尺度中寻找极值点，并提取出其位置、尺度、旋转不变数，此算法由David Lowe 在1999年所发表，2004年完善总结。
         @FlannBasedMatcher：Fast Library forApproximate Nearest Neighbors
         """
+   
         print("CV INIT")
 
     def read_base64(self, base64Image):
