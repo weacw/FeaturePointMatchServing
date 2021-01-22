@@ -1,7 +1,5 @@
 from ImageMatch.Cores.ims_database_base import ImsDatabaseBase
 from datetime import datetime
-from ImageMatch.Cores.Utitliy import timer
-
 
 class ImsES(ImsDatabaseBase):
     def __init__(self, es, index='images', doc_type='data', timeout='10s', size=100, *args, **kwargs):
@@ -13,9 +11,9 @@ class ImsES(ImsDatabaseBase):
 
         if not es.indices.exists(index=index):
             self.es.indices.create(index=index, ignore=400)
-        super(ImsES, self).__init__(*args, *kwargs)        
+        super(ImsES, self).__init__(*args, *kwargs)
 
-
+    
     def search_single_record(self, id):
         """查询单条数据
 
@@ -27,7 +25,7 @@ class ImsES(ImsDatabaseBase):
         """
         body = {
             "query": {
-                "constant_score": {
+                "bool": {
                     "filter": {
                         "term": {
                             "id": id
@@ -43,7 +41,6 @@ class ImsES(ImsDatabaseBase):
                              size=self.size,
                              timeout=self.timeout)['hits']['hits']
 
-     
         # Avoid Empty error
         if len(res) > 0:
             res = res[0]['_source']
@@ -84,7 +81,7 @@ class ImsES(ImsDatabaseBase):
                              body=rec,
                              refresh=refresh_after)
 
-    @timer
+
     def search_multiple_record(self, ids):
         """通过id数组进行一次性多个数据查询
 

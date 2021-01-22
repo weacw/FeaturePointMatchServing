@@ -22,6 +22,7 @@ class CVModule():
         """
         pass
 
+    
     def read_base64(self, base64Image):
         """
         将Base64转为图片
@@ -34,6 +35,7 @@ class CVModule():
         img = np.uint8(np.clip((2 * (np.int16(img)-60) - 225), 0, 255))
         return img
 
+    
     def url_to_image(self, url):
         """
         通过URL下载图片
@@ -44,15 +46,17 @@ class CVModule():
         image = cv2.imdecode(image, 0)
         return image
 
+    
     def path_to_image(self, path):
         return cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
+    
     def bytes_to_image(self, bytes):
         image = np.asarray(bytearray(bytes.read()), dtype="uint8")
         if image is None:
             return None
         return cv2.imdecode(image, 0)
-
+    
     def extract_feature(self, img, shape=(400, 400)):
         """
         抽出图像的描述子
@@ -74,8 +78,9 @@ class CVModule():
         mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)
         crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
+        cv2.imwrite('croped.jpg',crop_img)
         return crop_img
-
+    
     def match(self, des1, des2):
         """
         将两个描述子进行匹配
@@ -92,6 +97,7 @@ class CVModule():
                     good.append(m[0])
         return good
 
+    
     def findHomgraphy(self, good, kps1, kps2):
         """使用RANSAC计算inliner匹配点
         Args:
@@ -118,5 +124,6 @@ class CVModule():
 
         return 0
 
+    
     def convetKeypointToDict(self, kps):
         return [{'angle': k.angle, 'response': k.response, 'octave': k.octave, 'class_id': k.class_id, 'pt': k.pt, 'size': k.size} for k in kps]

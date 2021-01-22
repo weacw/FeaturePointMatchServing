@@ -4,14 +4,8 @@ from ImageMatch.Cores.image_train import ImageTrain
 
 class Image_Train_API(Resource):
     def __init__(self):
-        self.imageTrain = ImageTrain(annoy_index_db_path)
-        parse = reqparse.RequestParser()
-        parse.add_argument('image_url')
-        parse.add_argument('image_base64')
-        parse.add_argument(
-            'image', type=werkzeug.datastructures.FileStorage, location='files')
-        parse.add_argument('metadata')
-        self.args = parse.parse_args()
+        self.imageTrain = ImageTrain(annoy_index_db_path)        
+        self.args = create_args()
 
     def post(self):
         img = get_image(CVAlgorithm, self.args)
@@ -52,7 +46,7 @@ class Image_Train_API(Resource):
         # # Append data to already dataset
         new_record = {'id': image_count,
                       'metadata': metadata,
-                      'des': des.flatten(),
+                      'des': des.ravel(),
                       'kps': keypoint_serialize}
         ims.insert_single_record(new_record, refresh_after=True)
 

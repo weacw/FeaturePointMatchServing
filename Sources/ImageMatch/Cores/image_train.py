@@ -5,7 +5,6 @@ class ImageTrain():
         """初始化
         """
         self.desArray = []
-        print("Image Train")
 
     def addMarkerDes(self, id, des):
         """添加单个识别图数据
@@ -15,7 +14,7 @@ class ImageTrain():
         """
         if isinstance(des, np.ndarray) is False:
             des = np.array(des)
-        # self.desArray.append(des)
+
         desDict = dict()
         desDict['id'] = id
         desDict['des'] = des

@@ -26,11 +26,11 @@ class AnnoyIndex_driver():
         """
         if des is None:
             return
-        des = des.flatten()[: self.vector_size]
+        des = des.ravel()[: self.vector_size]
         if des.size < self.vector_size:
             des = np.concatenate([des, np.zeros(self.vector_size - des.size)])
         data_tuple = self.annoyindex.get_nns_by_vector(des, n=15, include_distances=True)        
-        
+        print(data_tuple)
         #过滤，相似距离大于30000的图像
         data = list()
         for data_inex in range(0, len(data_tuple[0])):
@@ -52,7 +52,6 @@ class AnnoyIndex_driver():
             vector: 图像描述符向量
         """
         return np.array(self.annoyindex.get_item_vector(id)).reshape(self.shape).astype('float32')
-
     def reshape(self, des, shape):
         siez = shape[0]*shape[1]
         if len(des) < siez:
