@@ -58,7 +58,9 @@ class ImageSearch():
         kn_results = self.find_vector(targetVector)
 
         for data_index in kn_results:
-            image_data_from_es = ims.search_single_record(data_index)
+            image_data_from_es = memory_cache.get_from_cache(data_index)
+            if image_data_from_es is None:
+                image_data_from_es = ims.search_single_record(data_index)
             flatten_vector = image_data_from_es['des']
 
             # 避免无法重塑形状
@@ -76,9 +78,10 @@ class ImageSearch():
                 RANSAC_percent = CVAlgorithm.findHomgraphy(
                     good, kps, image_data_from_es['kps'])
                 if RANSAC_percent >= 0.5:
-                    image_data_from_es['matchscore'] = len(good)
-                    image_data_from_es['confidence'] = RANSAC_percent
-                    image_data_from_es.pop('des')
-                    image_data_from_es.pop('kps')
-                    return image_data_from_es
+                    result_dict = dict()
+                    result_dict['id'] = image_data_from_es['id']
+                    result_dict['metadata'] = image_data_from_es['metadata']
+                    result_dict['matchscore'] = len(good)
+                    result_dict['confidence'] = RANSAC_percent
+                    return result_dict
         return None

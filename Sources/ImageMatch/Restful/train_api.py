@@ -4,7 +4,7 @@ from ImageMatch.Cores.image_train import ImageTrain
 
 class Image_Train_API(Resource):
     def __init__(self):
-        self.imageTrain = ImageTrain(annoy_index_db_path)        
+        self.imageTrain = ImageTrain(annoy_index_db_path)
         self.args = create_args()
 
     def post(self):
@@ -33,7 +33,7 @@ class Image_Train_API(Resource):
         if result_table is None and kps is not None and des is not None:
             return self.build_record(image_count, kps, des)
         else:
-            return {'data': '', 'msg': 'there are already image'}, 202
+            return {'msg': 'there is an already image'}, 202
 
     def build_record(self, image_count, kps, des):
         keypoint_serialize = [{'angle': k.angle, 'response': k.response, 'octave': k.octave,
@@ -60,4 +60,5 @@ class Image_Train_API(Resource):
 
         # # Rebuild index
         if self.imageTrain.generateMarkerDB():
+            memory_cache.re_cache(already_dataset)
             return {'msg': 'success'}
