@@ -4,7 +4,7 @@ import os
 
 
 class AnnoyIndex_driver():
-    def __init__(self, _db_path, _metric='euclidean',  _reshape=(100, 128)):
+    def __init__(self, _db_path, _metric='manhattan',  _reshape=(100, 128)):
         self.vector_size = 128
         self.db_path = _db_path
         self.metric = _metric
