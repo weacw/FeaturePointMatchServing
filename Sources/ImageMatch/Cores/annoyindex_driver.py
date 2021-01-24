@@ -5,7 +5,7 @@ import os
 
 class AnnoyIndex_driver():
     def __init__(self, _db_path, _metric='manhattan',  _reshape=(100, 128)):
-        self.vector_size = 128
+        self.vector_size = 512
         self.db_path = _db_path
         self.metric = _metric
         self.shape = _reshape
@@ -29,7 +29,7 @@ class AnnoyIndex_driver():
         des = des.ravel()[: self.vector_size]
         if des.size < self.vector_size:
             des = np.concatenate([des, np.zeros(self.vector_size - des.size)])
-        data = self.annoyindex.get_nns_by_vector(des, n=15)               
+        data = self.annoyindex.get_nns_by_vector(des, n=15)             
         return data
 
     def unload(self):
