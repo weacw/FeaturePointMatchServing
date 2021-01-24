@@ -5,7 +5,6 @@ class Image_Predict_API(Resource):
         self.args = create_args()
         self.image_search = ImageSearch(annoy_index_db_path)
 
-    @timer
     def post(self):
         """图像验证Restful API        
 
