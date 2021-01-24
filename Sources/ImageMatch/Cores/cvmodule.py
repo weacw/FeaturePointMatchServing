@@ -73,7 +73,7 @@ class CVModule():
         @dim:裁剪的目标尺寸
         """
         
-        if img.shape == dim:
+        if img.shape == dim or img.shape == (512,512) or img.shape == (800,800):
             return img
         img = cv2.resize(img, dsize=(int(img.shape[1]/2),int(img.shape[0]/2)), interpolation=cv2.INTER_LINEAR)
         # cv2.imwrite('resize.jpg',img)
