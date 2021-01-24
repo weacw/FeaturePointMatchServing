@@ -55,12 +55,15 @@ class ImageSearch():
             Dict: 检索到最为匹配的图像数据
         """
         self.annoyindx.loadDb()
-        kn_results = self.find_vector(targetVector)
-
+        kn_results = self.find_vector(targetVector)        
         for data_index in kn_results:
             image_data_from_es = memory_cache.get_from_cache(data_index)
             if image_data_from_es is None:
                 image_data_from_es = ims.search_single_record(data_index)
+
+            if image_data_from_es == {}:
+                return None
+
             flatten_vector = image_data_from_es['des']
 
             # 避免无法重塑形状
@@ -76,7 +79,7 @@ class ImageSearch():
             #  通过RANSAC计算inliers
             if len(good) > MIN_MATCH_COUNT:
                 RANSAC_percent = CVAlgorithm.findHomgraphy(
-                    good, kps, image_data_from_es['kps'])
+                    good, kps, image_data_from_es['kps'])                
                 if RANSAC_percent >= 0.5:
                     result_dict = dict()
                     result_dict['id'] = image_data_from_es['id']

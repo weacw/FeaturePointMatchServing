@@ -39,7 +39,7 @@ urls = [
 
 class batch_tools():
     def __init__(self):
-        self.gateway = 'http://101.132.187.245/v1/add_image'
+        self.gateway = 'http://localhost:4530/v1/add_image'
     
     def startTrain(self, images_path):
         files = [os.path.join(images_path, p) for p in sorted(os.listdir(images_path))]
@@ -51,4 +51,4 @@ class batch_tools():
 
 if __name__ == "__main__":
     batch = batch_tools()
-    batch.startTrain('../Tests/Markers')
+    batch.startTrain('../Tests/Benchmark')

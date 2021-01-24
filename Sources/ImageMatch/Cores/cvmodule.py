@@ -66,17 +66,23 @@ class CVModule():
         kps, des = sift.detectAndCompute(img, None)
         return kps, des
 
-    def crop_center(self, img, dim=[512, 512]):
+    def crop_center(self, img, dim=[800, 800]):
         """
         将图片进行裁剪
         @img:需裁剪的图片
         @dim:裁剪的目标尺寸
         """
+        
+        if img.shape == dim:
+            return img
+        img = cv2.resize(img, dsize=(int(img.shape[1]/2),int(img.shape[0]/2)), interpolation=cv2.INTER_LINEAR)
+        # cv2.imwrite('resize.jpg',img)
+
         width, height = img.shape[1], img.shape[0]
         crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
         crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]
-        mid_x, mid_y = int(width/2), int(height/2)
-        cw2, ch2 = int(crop_width/2), int(crop_height/2)
+        mid_x, mid_y = int(width/2), int(height/2.3)
+        cw2, ch2 = int(crop_width/2), int(crop_height/2)      
         crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
         # cv2.imwrite('croped.jpg',crop_img)
         return crop_img

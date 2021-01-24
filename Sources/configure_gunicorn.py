@@ -17,7 +17,8 @@ reload = True
 
 
 # 启动的进程数
-workers = 40 # multiprocessing.cpu_count() * 2 +1
+workers = multiprocessing.cpu_count() * 2 +1
 worker_class = 'gevent'
 worker_connections = 2000
+threads = 4
 x_forwarded_for_header = 'X-FORWARDED-FOR'

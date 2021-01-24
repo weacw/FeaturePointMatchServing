@@ -27,7 +27,7 @@ class Image_Predict_API(Resource):
         """
         try:
             img = get_image(CVAlgorithm, self.args)
-            img = CVAlgorithm.crop_center(img, dim=dim_800x800)
+            img = CVAlgorithm.crop_center(img, dim=(512,512))
             kps, des = CVAlgorithm.extract_feature(img)
             result_table = self.image_search.search_batch(des, kps)
             if result_table != None:

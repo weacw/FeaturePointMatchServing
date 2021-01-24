@@ -13,8 +13,6 @@ class Image_Train_API(Resource):
         if img is None:
             return {'msg': 'Image data error'}, 200
 
-        img = CVAlgorithm.crop_center(img, dim=dim_800x800)
-
         if img.shape != dim_800x800:
             return {'msg': 'Image size is not enough'}, 200
 
