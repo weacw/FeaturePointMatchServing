@@ -55,6 +55,10 @@ class ImageSearch():
             Dict: 检索到最为匹配的图像数据
         """
         self.annoyindx.loadDb()
+        
+        if type(targetVector) is list:
+            targetVector = self.annoyindx.reshape(targetVector,( 838, 32))
+
         kn_results = self.find_vector(targetVector)        
         for data_index in kn_results:
             image_data_from_es = memory_cache.get_from_cache(data_index)

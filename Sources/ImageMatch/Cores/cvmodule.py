@@ -118,7 +118,7 @@ class CVModule():
 
         try:
             src_pts = np.float32(
-                [kps1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+                [kps1[m.queryIdx]['pt'] for m in good]).reshape(-1, 1, 2)
             dst_pts = np.float32([kps2[m.trainIdx]['pt']
                                   for m in good]).reshape(-1, 1, 2)
             m, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
