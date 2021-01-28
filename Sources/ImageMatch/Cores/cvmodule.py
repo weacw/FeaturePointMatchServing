@@ -4,9 +4,10 @@ import urllib.request
 import numpy as np
 
 cv2.useOptimized()
-sift = cv2.SIFT_create(nfeatures=100)
-FLANN_INDEX_KDTREE = 0
-index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=20)
+sift = cv2.ORB_create(nfeatures=1000)
+FLANN_INDEX_KDTREE = 6
+# index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=20)
+index_params=dict(algorithm=FLANN_INDEX_KDTREE,table_number = 6,key_size = 12,multi_probe_level = 2)
 search_params = dict(checks=150)
 flann = cv2.FlannBasedMatcher(index_params, search_params)
 

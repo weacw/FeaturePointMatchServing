@@ -44,12 +44,12 @@ class AnnoyIndex_driver():
         Returns:
             vector: 图像描述符向量
         """
-        return np.array(self.annoyindex.get_item_vector(id)).reshape(self.shape).astype('float32')
+        return np.array(self.annoyindex.get_item_vector(id)).reshape(self.shape).astype('uint8')
     def reshape(self, des, shape):
         siez = shape[0]*shape[1]
         if len(des) < siez:
             des = np.concatenate([des, np.zeros(siez - len(des))])
-        return np.array(des).reshape(shape).astype('float32')
+        return np.array(des).reshape(shape).astype('uint8')
 
     def get_count(self):
         """获取当前annoy index数据库的个数

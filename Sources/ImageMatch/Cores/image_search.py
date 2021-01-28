@@ -66,12 +66,18 @@ class ImageSearch():
 
             flatten_vector = image_data_from_es['des']
 
-            # 避免无法重塑形状
-            if len(flatten_vector) > 12800:
-                vector = self.annoyindx.reshape(
-                    flatten_vector, (int(len(flatten_vector)/128), 128))
+            # 避免无法重塑形状 SIFT
+            # if len(flatten_vector) > 12800:
+            #     vector = self.annoyindx.reshape(
+            #         flatten_vector, (int(len(flatten_vector)/128), 128))
+            # else:
+            #     vector = self.annoyindx.reshape(flatten_vector, (100, 128))
+
+            if len(flatten_vector) > 26816:
+                vector = self.annoyindx.reshape(flatten_vector, (int(len(flatten_vector)/32), 32))
             else:
-                vector = self.annoyindx.reshape(flatten_vector, (100, 128))
+                vector = self.annoyindx.reshape(flatten_vector, (838, 32))
+            
 
             # 寻找匹配点
             good = CVAlgorithm.match(targetVector, vector)
