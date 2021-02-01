@@ -75,16 +75,23 @@ class CVModule():
        
         if img.shape[0] == img.shape[1]:
             return img
-        img = cv2.resize(img, dsize=(int(img.shape[1]/2),int(img.shape[0]/2)), interpolation=cv2.INTER_LINEAR)
-        # cv2.imwrite('resize.jpg',img)
+       
+        scale_percent = 200 
+        width = int(img.shape[1] * scale_percent / 100)
+        height = int(img.shape[0] * scale_percent / 100)
+        resize_dim = (width, height)
+        img = cv2.resize(img, resize_dim, interpolation = cv2.INTER_AREA)
+        cv2.imwrite('resize_after.jpg',img)
+
 
         width, height = img.shape[1], img.shape[0]
-        crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
-        crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]
-        mid_x, mid_y = int(width/2), int(height/2.3)
+        crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]       
+        crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]        
+        mid_x, mid_y = int(width/2), int(height/2)
         cw2, ch2 = int(crop_width/2), int(crop_height/2)      
-        crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]
-        # cv2.imwrite('croped.jpg',crop_img)
+        crop_img = img[mid_y-ch2:mid_y+ch2, mid_x-cw2:mid_x+cw2]        
+        cv2.imwrite('croped.jpg',crop_img)
+      
         return crop_img
     
     def match(self, des1, des2):
