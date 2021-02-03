@@ -30,7 +30,7 @@ class CVModule():
         npimg = np.frombuffer(base64.b64decode(base64Image), dtype=np.uint8)
         img = cv2.imdecode(npimg, 2)
         # Enhanced gray
-        img = np.uint8(np.clip((2 * (np.int16(img)-60) - 225), 0, 255))
+        # img = np.uint8(np.clip((2 * (np.int16(img)-60) - 225), 0, 255))
         return img
 
     def url_to_image(self, url):
