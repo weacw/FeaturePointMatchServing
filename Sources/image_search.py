@@ -89,7 +89,7 @@ class ImageSearch():
 
                 good = self.cvmodule.match(targetVector, vector)
 
-                if len(good) > self.MIN_MATCH_COUNT:
+                if len(good) >= self.MIN_MATCH_COUNT:
                     record['id'] = source['id']
                     record['matchscore'] = len(good)
                     record['good'] = good

@@ -30,7 +30,7 @@ class Image_Predict_API(Resource):
                 data = result_table[data_index]
                 RANSAC_percent = self.CVAlgorithm.findHomgraphy(
                     data['good'], kps, record['kps'])
-                if len(record) > 0 and RANSAC_percent > 0.5:
+                if len(record) > 0 and RANSAC_percent >= 0.5:
                     # Remove the field of des. Because the des field is storing the image description data
                     record.pop('des')
                     record.pop('kps')
