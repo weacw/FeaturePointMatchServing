@@ -30,8 +30,7 @@ class Image_Predict_API(Resource):
             kps, des = CVAlgorithm.extract_feature(img)
 
             image_search = ImageSearch(annoy_index_db_path)
-            result_table = image_search.search_batch(des, kps)
-            image_search.unload()
+            result_table = image_search.search_batch(des, kps)            
             
             if result_table != None:
                 return result_table, 200            
