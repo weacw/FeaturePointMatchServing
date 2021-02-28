@@ -10,7 +10,8 @@ class ImageSearch():
         Args:
             db_name (string): 需要加载的数据库名称
         """
-        self.annoyindx = AnnoyIndex_driver('cache/index.db')
+        self.db_name = db_name
+        self.annoyindx = AnnoyIndex_driver(self.db_name)
 
     def find_vector(self, des):
         """通过向量匹配对应向量
