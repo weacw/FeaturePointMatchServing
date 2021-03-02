@@ -12,7 +12,6 @@ from elasticsearch_driver import ImsES
 from elasticsearch import Elasticsearch
 from Utitliy import get_image_b64,timer
 dim_800x800=(800,800)
-annoy_index_db_path='cache/index.db'
 class Server(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
