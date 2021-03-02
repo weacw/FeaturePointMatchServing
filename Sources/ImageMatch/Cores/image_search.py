@@ -10,7 +10,8 @@ class ImageSearch():
         Args:
             db_name (string): 需要加载的数据库名称
         """
-        self.annoyindx = AnnoyIndex_driver('cache/index.db')
+        self.db_name = db_name
+        self.annoyindx = AnnoyIndex_driver(self.db_name)
 
     def find_vector(self, des):
         """通过向量匹配对应向量
@@ -55,11 +56,7 @@ class ImageSearch():
             Dict: 检索到最为匹配的图像数据
         """
         self.annoyindx.loadDb()
-        
-        if type(targetVector) is list:
-            targetVector = self.annoyindx.reshape(targetVector,( 838, 32))
-
-        kn_results = self.find_vector(targetVector)        
+        kn_results = self.find_vector(targetVector)
         for data_index in kn_results:
             image_data_from_es = memory_cache.get_from_cache(data_index)
             if image_data_from_es is None:
@@ -70,18 +67,13 @@ class ImageSearch():
 
             flatten_vector = image_data_from_es['des']
 
-            # 避免无法重塑形状 SIFT
-            # if len(flatten_vector) > 12800:
-            #     vector = self.annoyindx.reshape(
-            #         flatten_vector, (int(len(flatten_vector)/128), 128))
-            # else:
-            #     vector = self.annoyindx.reshape(flatten_vector, (100, 128))
-
+            # 避免无法重塑形状
             if len(flatten_vector) > 26816:
                 vector = self.annoyindx.reshape(flatten_vector, (int(len(flatten_vector)/32), 32))
             else:
                 vector = self.annoyindx.reshape(flatten_vector, (838, 32))
-            
+            # 关闭对KNN库的读取
+            self.unload()
 
             # 寻找匹配点
             good = CVAlgorithm.match(targetVector, vector)
@@ -98,3 +90,5 @@ class ImageSearch():
                     result_dict['confidence'] = RANSAC_percent
                     return result_dict
         return None
+    def __del__(self):
+        self.unload()

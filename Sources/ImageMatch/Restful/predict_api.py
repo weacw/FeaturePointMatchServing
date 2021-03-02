@@ -3,11 +3,10 @@ from ImageMatch.Restful import *
 class Image_Predict_API(Resource):
     def __init__(self):
         self.args = create_args()
-        self.image_search = ImageSearch(annoy_index_db_path)
+        
 
     def post(self):
         """图像验证Restful API        
-
         Returns:
             [json]: [查询反馈，若查询到数据则反馈为该图像的数据]
             Successed:
@@ -17,7 +16,6 @@ class Image_Predict_API(Resource):
                 "timestamp": "2021-01-21T14:53:51.047920",
                 "matchscore": 100
             }
-
             Failed:
             {
                 'data':'',
@@ -28,12 +26,13 @@ class Image_Predict_API(Resource):
             img = get_image(CVAlgorithm, self.args)
             img = CVAlgorithm.crop_center(img, dim=(512,512))
             kps, des = CVAlgorithm.extract_feature(img)
-            result_table = self.image_search.search_batch(des, kps)
+
+            image_search = ImageSearch(annoy_index_db_path)
+            result_table = image_search.search_batch(des, kps)            
+            
             if result_table != None:
-                return result_table, 200
+                return result_table, 200            
         except Exception as BaseException:
             print(BaseException)
 
         return {'data': '', 'message': 'Can not found!'}, 200
-
-
