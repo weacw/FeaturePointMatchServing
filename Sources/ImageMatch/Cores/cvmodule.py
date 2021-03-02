@@ -76,7 +76,7 @@ class CVModule():
        
         if img.shape[0] == img.shape[1]:
             return img
-        img = cv2.resize(img, dsize=(int(img.shape[1]/2),int(img.shape[0]/2)), interpolation=cv2.INTER_LINEAR)
+        img = cv2.resize(img, dsize=(int(img.shape[1]/3),int(img.shape[0]/3)), interpolation=cv2.INTER_LINEAR)
         # cv2.imwrite('resize.jpg',img)
 
         width, height = img.shape[1], img.shape[0]
@@ -115,10 +115,10 @@ class CVModule():
         Returns:
             [float]: [置信度]]
         """
-
+        
         try:
             src_pts = np.float32(
-                [kps1[m.queryIdx]['pt'] for m in good]).reshape(-1, 1, 2)
+                [kps1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
             dst_pts = np.float32([kps2[m.trainIdx]['pt']
                                   for m in good]).reshape(-1, 1, 2)
             m, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)

@@ -12,7 +12,7 @@ from ImageMatch.Cores.Utitliy import *
 from ImageMatch.Cores.configure_runtime import *
 from ImageMatch.Cores.annoyindex_driver import AnnoyIndex_driver
 from ImageMatch.Cores.ims_database_base import ImsDatabaseBase
-ims = ImsES(Elasticsearch(['139.224.112.142:9200']))  
+ims = ImsES(Elasticsearch())  
 
 from ImageMatch.Cores.cvmodule import CVModule
 CVAlgorithm = CVModule()
