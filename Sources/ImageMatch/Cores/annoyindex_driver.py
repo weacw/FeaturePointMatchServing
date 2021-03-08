@@ -69,8 +69,7 @@ class AnnoyIndex_driver():
             Bool: True即为构建数据库成功，反之则为失败
         """
 
-        try:
-            self.annoyindex.unload()
+        try:            
             for e in vectorGroup:
                 des = e['des'][:self.vector_size]
                 id = e['id']
@@ -79,7 +78,8 @@ class AnnoyIndex_driver():
                         [des, np.zeros(self.vector_size - des.size)])
                 self.annoyindex.add_item(id, des)
             self.annoyindex.build(100)
-            self.annoyindex.save(self.db_path)            
+            self.annoyindex.save(self.db_path)          
+            # self.annoyindex.unload()  
             return True
         except Exception as e:
             print(e)

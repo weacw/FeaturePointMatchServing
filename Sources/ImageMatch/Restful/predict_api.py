@@ -31,6 +31,7 @@ class Image_Predict_API(Resource):
 
             image_search = ImageSearch(annoy_index_db_path)
             result_table = image_search.search_batch(des, kps)            
+            image_search.unload()
             
             if result_table != None:
                 return result_table, 200            

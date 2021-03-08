@@ -74,8 +74,7 @@ class ImageSearch():
             else:
                 vector = self.annoyindx.reshape(flatten_vector, (100, 128))
 
-            # 关闭对KNN库的读取
-            self.unload()
+
 
             # 寻找匹配点
             good = CVAlgorithm.match(targetVector, vector)
@@ -92,5 +91,5 @@ class ImageSearch():
                     result_dict['confidence'] = RANSAC_percent
                     return result_dict
         return None
-    def __del__(self):
-        self.unload()
+    # def __del__(self):
+    #     self.unload()

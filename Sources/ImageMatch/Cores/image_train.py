@@ -8,6 +8,7 @@ class ImageTrain():
         """
         self.desArray = []
         self.db_name = db_name
+        self.annoyindx = AnnoyIndex_driver(db_name)
 
     def addMarkerDes(self, id, des):
         """添加单个识别图数据
@@ -29,9 +30,8 @@ class ImageTrain():
         Returns:
             Bool: True即为构建数据库成功，反之则为失败
         """
-        try:
-            annoyindx = AnnoyIndex_driver(self.db_name)            
-            annoyindx.buildAnnoyIndexDB(self.desArray)
+        try:        
+            self.annoyindx.buildAnnoyIndexDB(self.desArray)
             return True
         except Exception:
             print(Exception)
