@@ -5,7 +5,7 @@ sys.path.append("..")
 from ImageMatch.Cores import *
 from ImageMatch.Cores.Utitliy import timer
 
-es = Elasticsearch(['139.224.112.142:9200'])
+es = Elasticsearch()
 ims = ImsES(es)
 
 cache_path ='../cache/index.db'
