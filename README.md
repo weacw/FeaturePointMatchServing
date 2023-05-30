@@ -1,5 +1,7 @@
 # Feature Point Match Serving
 
+> Do not use for commercial projects, please obtain our authorization if necessary.
+
 It is further developed based on the Opencv ORB detector. It gives the ability to match in the cloud.
 
 # http_server.py and tcp_server.py?
